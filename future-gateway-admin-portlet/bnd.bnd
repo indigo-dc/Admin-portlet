@@ -1,0 +1,4 @@
+Bundle-SymbolicName: future.gateway.admin.portlet
+Bundle-Version: 1.0.0
+-includeresource: package.json
+Liferay-Export-JS-Submodules: *
