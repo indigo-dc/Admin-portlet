@@ -1,4 +1,5 @@
 <%@page import="com.liferay.portal.kernel.util.PortalUtil"%>
+<%@page import="com.liferay.portal.util.PropsValues" %>
 <%@ include file="/init.jsp" %>
 
 <div class="authorize">
@@ -11,8 +12,22 @@
         <p>
                 <liferay-ui:message key="liferay-futuregateway-configuration" />
         </p>
-        <aui:f<aui:form action="action" method="post" name="name">
+        
+        
+        <portlet:actionURL name="/fg/setServer" var="setServerURL" secure="<%= PropsValues.COMPANY_SECURITY_AUTH_REQUIRES_HTTPS || request.isSecure() %>>
+        	<portlet:param name="mvcRenderCommandName" value="/fg/setServer" />
+        </portlet:actionURL>
 
+        <aui:form action="action" method="post" name="name">
+			<aui:fieldset>
+				<aui:input name="FGURL" type="text" value="" label="fg-url">
+					<aui:validator name="required" />
+				</aui:input>
+			</aui:fieldset>
+			<aui:button-row>
+            	<aui:button cssClass="btn-lg" type="submit" />
+   		    </aui:button-row>
+			
         </aui:form>
 
         <aui:button onClick="<%= "Ciao" %>" value="sign-in" />
