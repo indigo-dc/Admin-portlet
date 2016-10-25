@@ -69,15 +69,17 @@ public class FutureGatewayAdminPortlet extends MVCPortlet {
 	protected void doDispatch(RenderRequest renderRequest, RenderResponse renderResponse)
 			throws IOException, PortletException {
 		ThemeDisplay themeDisplay = (ThemeDisplay)renderRequest.getAttribute(WebKeys.THEME_DISPLAY);
-		String fgURL = null;
 		try{
-			fgURL = _fgServerManager.getFGUrl(themeDisplay.getCompanyId());
+			String fgURL = _fgServerManager.getFGUrl(themeDisplay.getCompanyId());
+            renderRequest.setAttribute("FGURL", fgURL);
+	        if (fgURL == null || fgURL.isEmpty()) {
+	            include("/setup.jsp", renderRequest, renderResponse);
+	            return;
+	        }
 		} catch (PortalException pe) {
 			_log.info("The FutureGateway URL cannot be retrieved");
 		}
-		if (fgURL == null || fgURL.isEmpty()) {
-			include("/setup.jsp", renderRequest, renderResponse);
-		}
+		super.doDispatch(renderRequest, renderResponse);
 	}
 
 	@Reference(unbind = "-")

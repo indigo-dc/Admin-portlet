@@ -5,6 +5,13 @@
 <%@ taglib uri="http://liferay.com/tld/theme" prefix="liferay-theme"%>
 <%@ taglib uri="http://liferay.com/tld/ui" prefix="liferay-ui"%>
 
+<%@ page isELIgnored="false" %>
+
+<%@ page import="com.liferay.portal.kernel.language.UnicodeLanguageUtil" %>
+<%@ page import="com.liferay.portal.kernel.portlet.LiferayWindowState" %>
+<%@ page import="com.liferay.portal.kernel.util.PortalUtil"%>
+<%@ page import="com.liferay.portal.util.PropsValues"%>
+
 <liferay-theme:defineObjects />
 
 <portlet:defineObjects />

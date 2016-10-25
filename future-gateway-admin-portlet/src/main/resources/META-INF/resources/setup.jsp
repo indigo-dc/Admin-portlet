@@ -1,34 +1,36 @@
-<%@page import="com.liferay.portal.kernel.util.PortalUtil"%>
-<%@page import="com.liferay.portal.util.PropsValues" %>
-<%@ include file="/init.jsp" %>
+<%@ include file="/init.jsp"%>
 
 <div class="authorize">
-        <div class="title">
-        <div class="left-block title-logo"><img class="title-logo" src="<%= PortalUtil.getPathContext(request) %>/images/logo.png" /></div>
-        <div class="title-block"><span><liferay-ui:message key="liferay-futuregateway-component" /></span></div>
-        </div>
-        
+ <div class="title">
+  <div class="left-block title-logo">
+   <img class="title-logo" src="<%= PortalUtil.getPathContext(request) %>/images/logo.png" />
+  </div>
+  <div class="title-block">
+   <span><liferay-ui:message key="liferay-futuregateway-component" /></span>
+  </div>
+ </div>
 
-        <p>
-                <liferay-ui:message key="liferay-futuregateway-configuration" />
-        </p>
-        
-        
-        <portlet:actionURL name="/fg/setServer" var="setServerURL" secure="<%= PropsValues.COMPANY_SECURITY_AUTH_REQUIRES_HTTPS || request.isSecure() %>>
-        	<portlet:param name="mvcRenderCommandName" value="/fg/setServer" />
-        </portlet:actionURL>
 
-        <aui:form action="action" method="post" name="name">
-			<aui:fieldset>
-				<aui:input name="FGURL" type="text" value="" label="fg-url">
-					<aui:validator name="required" />
-				</aui:input>
-			</aui:fieldset>
-			<aui:button-row>
-            	<aui:button cssClass="btn-lg" type="submit" />
-   		    </aui:button-row>
-			
-        </aui:form>
+ <p>
+  <liferay-ui:message key="liferay-futuregateway-configuration" />
+ </p>
 
-        <aui:button onClick="<%= "Ciao" %>" value="sign-in" />
+
+ <portlet:actionURL name="/fg/setServer" var="setServerURL"
+  secure="<%= PropsValues.COMPANY_SECURITY_AUTH_REQUIRES_HTTPS || request.isSecure() %>">
+ </portlet:actionURL>
+
+ <aui:form action="<%= setServerURL %>" method="post" name="name">
+  <aui:fieldset>
+   <aui:input name="FGURL" type="text" value="${FGURL}" label="fg-url">
+    <aui:validator name="required" />
+    <aui:validator name="url" />
+   </aui:input>
+  </aui:fieldset>
+  <aui:button-row>
+   <aui:button cssClass="btn-lg" type="submit" />
+  </aui:button-row>
+
+ </aui:form>
+
 </div>
