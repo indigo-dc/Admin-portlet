@@ -1,0 +1,25 @@
+
+<aui:nav-bar cssClass="collapse-basic-search" markupView="lexicon">
+    <aui:nav cssClass="navbar-nav">
+        <portlet:renderURL var="viewFGTasks">
+            <portlet:param name="toolbarItem" value="view-all-tasks" />
+        </portlet:renderURL>
+        <aui:nav-item label="fg-tasks" href="${viewFGTasks}" selected="<%= toolbarItem.equals("view-all-tasks") %>" />
+
+        <portlet:renderURL var="viewFGApps">
+            <portlet:param name="toolbarItem" value="view-all-apps" />
+        </portlet:renderURL>
+        <aui:nav-item label="fg-applicatons" href="${viewFGApps}" selected="<%= toolbarItem.equals("view-all-apps") %>" />
+
+        <portlet:renderURL var="viewFGInfras">
+            <portlet:param name="toolbarItem" value="view-all-infras" />
+        </portlet:renderURL>
+        <aui:nav-item label="fg-infrastructures" href="${viewFGInfras}" selected="<%= toolbarItem.equals("view-all-infras") %>" />
+    </aui:nav>
+
+    <aui:nav-bar-search>
+                <aui:form action="" name="searchFm">
+                        <liferay-ui:input-search markupView="lexicon" />
+                </aui:form>
+        </aui:nav-bar-search>
+</aui:nav-bar>
