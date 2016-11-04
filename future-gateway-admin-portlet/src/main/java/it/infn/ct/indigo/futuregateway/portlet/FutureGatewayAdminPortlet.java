@@ -87,6 +87,7 @@ public class FutureGatewayAdminPortlet extends MVCPortlet {
             this._fgServerManager = fgServerManeger;
     }
 
+
 	private Log _log = LogFactoryUtil.getLog(FutureGatewayAdminPortlet.class);
 	private FGServerManeger _fgServerManager;
 }

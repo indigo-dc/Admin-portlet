@@ -23,38 +23,13 @@
         </tr>
     </tfoot>
 </table>
- -->
- <div id="<portlet:namespace />TasksTable"></div>
+-->
+<div id="<portlet:namespace />TasksTable"></div>    
  
 <aui:script require="future-gateway-admin-portlet/js/fgTable.es">
     var Table = futureGatewayAdminPortletJsFgTableEs.default;
-
-    var table = new Table('*** -> ', '<portlet:namespace />TasksTable');
- 
-    AUI().use('aui-datatable', function(B) {
-    var columns = [
-      'name',
-      'age'
-    ];
-
-    var data = [
-      {
-        name: 'Bob',
-        age: '28'
-      },
-      {
-        name: 'Joe',
-        age: '72'
-      },
-      {
-        name: 'Sarah',
-        age: '35'
-      }
-    ];
-        var dataTable = new B.DataTable({
-            columns : columns,
-            data : data,
-            scrollable : "y",
-        }).render('#<portlet:namespace />TasksTable');
-    });
+    var table = new Table('${FGURL}', '<portlet:namespace />TasksTable');
+    var columns = ['id', 'state'];
+    
+    table.render('tasks');
 </aui:script>

@@ -1,7 +1,7 @@
 <%@ include file="/init.jsp" %>
 
 <%
-String toolbarItem = ParamUtil.getString(renderRequest, "toolbarItem", "view-all-infras");
+String toolbarItem = ParamUtil.getString(renderRequest, "toolbarItem", "view-all-tasks");
 %>
 
 <%@ include file="/fragments/toolbar.jspf" %>
