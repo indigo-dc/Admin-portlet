@@ -1,35 +1,18 @@
 <%@ include file="/init.jsp" %>
 
-<!-- 
-<table id="application" class="display" cellspacing="0" width="100%">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Position</th>
-            <th>Office</th>
-            <th>Extn.</th>
-            <th>Start date</th>
-            <th>Salary</th>
-        </tr>
-    </thead>
-    <tfoot>
-        <tr>
-            <th>Name</th>
-            <th>Position</th>
-            <th>ciccio</th>
-            <th>Extn.</th>
-            <th>Start date</th>
-            <th>Ciccio</th>
-        </tr>
-    </tfoot>
-</table>
--->
-<div id="<portlet:namespace />TasksTable"></div>    
+<div id="<portlet:namespace />TasksTable">
+    <h2><liferay-ui:message key="fg-tasks"/></h2>
+</div>
  
 <aui:script require="future-gateway-admin-portlet/js/fgTable.es">
     var Table = futureGatewayAdminPortletJsFgTableEs.default;
-    var table = new Table('${FGURL}', '<portlet:namespace />TasksTable');
-    var columns = ['id', 'state'];
+    var columns = ['id', 'date', 'status', 'description'];
+    Liferay.Service(
+            '/iam.token/get-token',
+            function(obj) {
+                var table = new Table('${FGURL}', '#<portlet:namespace />TasksTable', obj);
+                table.render('tasks', columns, obj);
+            }
+    );
     
-    table.render('tasks');
 </aui:script>

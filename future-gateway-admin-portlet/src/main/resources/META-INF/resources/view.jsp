@@ -8,10 +8,10 @@ String toolbarItem = ParamUtil.getString(renderRequest, "toolbarItem", "view-all
 
 <c:choose>
     <c:when test="${param.toolbarItem eq 'view-all-apps'}">
-    <h1>Here should be the App</h1>
+    <h1>Here should be the App list</h1>
     </c:when>
     <c:when test="${param.toolbarItem eq 'view-all-infras'}">
-    <h1>Here should be the Infra</h1>
+    <h1>Here should be the Infra list</h1>
     </c:when>
     <c:otherwise>
         <liferay-util:include page="/tasks.jsp" servletContext="<%= application %>" />
