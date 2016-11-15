@@ -7,16 +7,19 @@ class FgTable {
 		this.token = token;
 	}
 	
-	console(msg) {
-	    alert(msg);
-	}
-	
 	render (resource, attributes) {
 	    var realTable = this.tableIdentifier;
 	    var endPoint = this.apiUrl;
 	    var tableManager = this;
 	    var token = this.token;
 	    var tasks = null;
+	    if(token.substring(0,4) == 'User') {
+	        AUI().use(
+	            function(A) {
+                    A.one(realTable).html('<h1 class="">No Token available.</h1>');
+                }
+	        );
+	    }
         AUI().use(
                 'aui-datatable',
                 'aui-datatype',
