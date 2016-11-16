@@ -1,4 +1,11 @@
 {
     "name": "future-gateway-admin-portlet",
-    "version": "1.0.0"
+    "version": "1.0.0",
+    "dependencies": {
+        "metal": "^1.0.0-alpha",
+        "metal-datatable": "^1.0.0",
+        "metal-ajax": "^1.0.0",
+        "metal-structs": "^1.0.0",
+        "senna": "^1.0.0-alpha.1"
+    }
 }

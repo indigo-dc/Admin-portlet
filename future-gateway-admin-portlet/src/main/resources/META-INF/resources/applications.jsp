@@ -1,7 +1,6 @@
 <%@ include file="/init.jsp" %>
 
 <div id="<portlet:namespace />ApplicationsTable">
-    <h2><liferay-ui:message key="fg-applicatons"/></h2>
 </div>
  
 <aui:script require="future-gateway-admin-portlet/js/fgTable.es">
@@ -10,7 +9,7 @@
     Liferay.Service(
             '/iam.token/get-token',
             function(obj) {
-                var table = new Table('${FGURL}', '#<portlet:namespace />ApplicationsTable', obj);
+                var table = new Table('${FGURL}', document.getElementById('<portlet:namespace />ApplicationsTable'), obj);
                 table.render('applications', columns, obj);
             }
     );
