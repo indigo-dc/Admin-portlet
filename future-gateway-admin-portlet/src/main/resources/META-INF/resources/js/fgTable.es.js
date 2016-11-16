@@ -33,11 +33,24 @@ class FgTable {
                     if(columns.indexOf(keyEntry) < 0){
                         delete(entry[keyEntry]);
                     }
+                    
+                });
+                columns.forEach(function(keyEntry){
+                    entry[keyEntry.capitalize()] = entry[keyEntry];
+                    delete(entry[keyEntry]);
                 });
             });
-            var dt = new datatable({'data': tableData, displayColumnsType: false}, tableBlock);
+            var dt = new datatable({'data': tableData, displayColumnsType: false, formatColumns: unsortColumns}, tableBlock);
         });
 	}
+}
+
+function unsortColumns(columns) {
+    return columns
+}
+
+String.prototype.capitalize = function() {
+    return this.charAt(0).toUpperCase() + this.slice(1);
 }
 
 export default FgTable;
