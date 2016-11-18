@@ -10,8 +10,20 @@
             '/iam.token/get-token',
             function(obj) {
                 var table = new Table('${FGURL}', document.getElementById('<portlet:namespace />TasksTable'), obj);
-                table.render('tasks', columns, obj);
+                table.render('tasks', columns, 'taskDetails', obj);
             }
     );
     
+    Liferay.provide(
+        window,
+        'taskDetails',
+        function (id) {
+            Liferay.Service(
+                '/iam.token/get-token',
+                function(obj) {
+                    var table = new Table('${FGURL}', document.getElementById('<portlet:namespace />TasksTable'), obj);
+                    table.showDetails('tasks', id);
+                });
+        },
+        []);
 </aui:script>

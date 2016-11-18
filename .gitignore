@@ -1,3 +1,6 @@
+# SASS cache
+.sass-cache
+
 
 # Gradle
 # ------
@@ -57,7 +60,7 @@ atlassian-ide-plugin.xml
 
 
 *.class
-
+classes
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 

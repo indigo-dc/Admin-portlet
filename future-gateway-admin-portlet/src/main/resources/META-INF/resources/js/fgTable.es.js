@@ -1,8 +1,10 @@
 'use strict';
-import dom from 'metal-dom/src/dom';
+import Dom from 'metal-dom/src/dom';
 import MultiMap from 'metal-structs/src/MultiMap'
-import datatable from 'metal-datatable/src/Datatable';
-import ajax from 'metal-ajax/src/Ajax';
+import Datatable from 'metal-datatable/src/Datatable';
+import Modal from 'metal-modal/src/Modal';
+import Ajax from 'metal-ajax/src/Ajax';
+import TreeView from 'metal-treeview/src/Treeview';
 
 class FgTable {
 	constructor(apiUrl = 'https://localhost/apis/v1.0 ', tableIdentifier='#application', token='') {
@@ -11,10 +13,9 @@ class FgTable {
 		this.token = token;
 	}
 	
-	render (resource, columns) {
-	    var tasks = null;
+	render (resource, columns, details_callback) {
 	    if(this.token.substring(0,4) == 'User' || this.token.substring(0,7) == 'No JSON') {
-	        dom.append(this.tableIdentifier,'<h1 class="">No Token available.</h1>');
+	        Dom.append(this.tableIdentifier,'<h1 class="">No Token available.</h1>');
 	        return;
 	    }
 	    
@@ -24,7 +25,7 @@ class FgTable {
         headers.add('Authorization', 'Bearer ' + this.token);
         headers.add('content-type', 'application/json');
             
-        var promise = ajax.request(this.apiUrl+'/'+resource, 'GET',null, headers, null);
+        var promise = Ajax.request(this.apiUrl+'/'+resource, 'GET',null, headers, null);
         var tableBlock = this.tableIdentifier;        
         promise.then(function(data){
             var tableData = JSON.parse(data.response)[resource];
@@ -36,13 +37,78 @@ class FgTable {
                     
                 });
                 columns.forEach(function(keyEntry){
+                    if (keyEntry == 'id') {
+                        entry[keyEntry] = '<a href="#' + entry[keyEntry] + '" onClick="'+ details_callback +'('+entry[keyEntry]+')">' + entry[keyEntry] + '</a>'; 
+                    }
                     entry[keyEntry.capitalize()] = entry[keyEntry];
                     delete(entry[keyEntry]);
                 });
             });
-            var dt = new datatable({'data': tableData, displayColumnsType: false, formatColumns: unsortColumns}, tableBlock);
+            var dt = new Datatable({'data': tableData, displayColumnsType: false, formatColumns: unsortColumns}, tableBlock);
         });
 	}
+
+	showDetails(resource, id) {
+        if(this.token.substring(0,4) == 'User' || this.token.substring(0,7) == 'No JSON') {
+            var modalError = new Modal({
+                elementClasses: 'modal-boot',
+                header: '<h4 class="modal-title">Error</h4>',
+                body: 'No token available!',
+                footer: '<button type="button" class="btn btn-primary">OK</button>'
+            });
+            modalError.show();
+            return;
+        }
+        var headers = new MultiMap();
+        headers.add('Authorization', 'Bearer ' + this.token);
+        headers.add('content-type', 'application/json');
+            
+        var promise = Ajax.request(this.apiUrl + '/' + resource + '/' + id, 'GET', null, headers, null);
+        promise.then(function(data){
+            var modalTask = new Modal({
+                elementClasses: 'modal-boot',
+                header: '<h4 class="modal-title">Task: ' + id + '</h4>',
+                body: '<div id="' + resource + id + '"></div>'
+            });
+
+            var ciccio = FgTable.convertToNodes(JSON.parse(data.response));
+            new TreeView({
+                nodes: FgTable.convertToNodes(JSON.parse(data.response))
+            }, '#' + resource + id);
+            
+            modalTask.show();
+            
+        });
+	}
+	
+	static convertToNodes(json) {
+	    var nodes = new Array();
+	    var childrenList;
+	    Object.keys(json).forEach(function(key){
+            if(typeof json[key] !== null && typeof json[key] === 'object'){
+                if(Array.isArray(json[key])){
+                    childrenList = new Array();
+                    json[key].forEach(function(childElem){
+                        if(typeof childElem !== null && typeof childElem === 'object'){
+                            childrenList.push({name: childElem, children: FgTable.convertToNodes(childElem)});
+                        } else {
+                            childrenList.push({name: childElem});
+                        }
+                    });
+                    if(childrenList.length>0){
+                        nodes.push({name: key, children: childrenList});
+                    } else {
+                        nodes.push({name: key, children: [{name: 'N/A'}]});
+                    }
+                } else {
+                    nodes.push({name: key, children: FgTable.convertToNodes(json[key])});
+                }
+            } else {
+                nodes.push({name: key, children: [{name: json[key]}]});
+            }
+	    });
+	    return nodes;
+    }
 }
 
 function unsortColumns(columns) {
