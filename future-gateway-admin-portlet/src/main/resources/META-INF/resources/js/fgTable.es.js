@@ -7,7 +7,8 @@ import Ajax from 'metal-ajax/src/Ajax';
 import TreeView from 'metal-treeview/src/Treeview';
 
 class FgTable {
-	constructor(apiUrl = 'https://localhost/apis/v1.0 ', tableIdentifier='#application', token='') {
+	constructor(apiUrl = 'https://localhost/apis/v1.0 ',
+	        tableIdentifier='#application', token='') {
 		this.apiUrl = apiUrl;
 		this.tableIdentifier = tableIdentifier;
 		this.token = token;
@@ -65,16 +66,17 @@ class FgTable {
             
         var promise = Ajax.request(this.apiUrl + '/' + resource + '/' + id, 'GET', null, headers, null);
         promise.then(function(data){
+            var date = new Date();
+            var resourceId = resource + id + date.getTime();
             var modalTask = new Modal({
                 elementClasses: 'modal-boot',
                 header: '<h4 class="modal-title">Task: ' + id + '</h4>',
-                body: '<div id="' + resource + id + '"></div>'
+                body: '<div id="' + resourceId + '"></div>'
             });
 
-            var ciccio = FgTable.convertToNodes(JSON.parse(data.response));
             new TreeView({
                 nodes: FgTable.convertToNodes(JSON.parse(data.response))
-            }, '#' + resource + id);
+            }, '#' + resourceId);
             
             modalTask.show();
             
@@ -88,9 +90,10 @@ class FgTable {
             if(typeof json[key] !== null && typeof json[key] === 'object'){
                 if(Array.isArray(json[key])){
                     childrenList = new Array();
+                    var arrayElem = 0;
                     json[key].forEach(function(childElem){
                         if(typeof childElem !== null && typeof childElem === 'object'){
-                            childrenList.push({name: childElem, children: FgTable.convertToNodes(childElem)});
+                            childrenList.push({name: arrayElem++, children: FgTable.convertToNodes(childElem)});
                         } else {
                             childrenList.push({name: childElem});
                         }
