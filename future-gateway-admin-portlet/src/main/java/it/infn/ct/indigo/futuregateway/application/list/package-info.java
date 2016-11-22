@@ -19,28 +19,7 @@
  * the License.
  **********************************************************************
  */
-
-package it.infn.ct.indigo.futuregateway.constants;
-
 /**
- * Keys used in the module.
- *
+ * Package controlling the location of the portlet.
  */
-public final class FutureGatewayAdminPortletKeys {
-
-    /**
-     * Blocks public instance of this class.
-     */
-    private FutureGatewayAdminPortletKeys() {
-    }
-
-    /**
-     * Identifier for the portlet.
-     */
-    public static final String FUTURE_GATEWAY_ADMIN = "FutureGatewayAdmin";
-
-    /**
-     * Weight assigned to the portlet in the configuration panel.
-     */
-    public static final int FUTURE_GATEWAY_WIGHT = 101;
-}
+package it.infn.ct.indigo.futuregateway.application.list;

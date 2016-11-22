@@ -36,38 +36,56 @@ import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 
 import it.infn.ct.indigo.futuregateway.constants.FutureGatewayAdminPortletKeys;
-import it.infn.ct.indigo.futuregateway.portlet.FutureGatewayAdminPortlet;
 import it.infn.ct.indigo.futuregateway.server.FGServerManeger;
 
+/**
+ * Implementation of the set FG server action command.
+ */
 @Component(
         immediate = true,
         property = {
-                "javax.portlet.name=" + FutureGatewayAdminPortletKeys.FutureGatewayAdmin,
+                "javax.portlet.name="
+                        + FutureGatewayAdminPortletKeys.FUTURE_GATEWAY_ADMIN,
                 "mvc.command.name=/fg/setServer"
-                
         },
         service = MVCActionCommand.class
 )
 public class FGServerSetMVCActionCommand extends BaseMVCActionCommand {
 
     @Override
-    protected void doProcessAction(
-            ActionRequest actionRequest, ActionResponse actionResponse)
+    protected final void doProcessAction(
+            final ActionRequest actionRequest,
+            final ActionResponse actionResponse)
                     throws Exception {
         ThemeDisplay themeDisplay = (ThemeDisplay) actionRequest.
                 getAttribute(WebKeys.THEME_DISPLAY);
-        String FGURL= ParamUtil.get(actionRequest, "FGURL", "");
-        if (FGURL!= null && !FGURL.isEmpty()) {
-            _fgServerManager.setFGUrl(
-                    themeDisplay.getCompanyId(), FGURL);
+        String fgUrl = ParamUtil.get(actionRequest, "FGURL", "");
+        if (fgUrl != null && !fgUrl.isEmpty()) {
+            log.debug("Configuring new FG EndPoint at: " + fgUrl);
+            fgServerManager.setFGUrl(
+                    themeDisplay.getCompanyId(), fgUrl);
         }
     }
 
+    /**
+     * Sets the FG Server manager.
+     * This is used to get information of the service and for interactions.
+     *
+     * @param fgServerManeger The FG Server manager
+     */
     @Reference(unbind = "-")
-    protected void setFGServerManeger(FGServerManeger fgServerManeger) {
-            this._fgServerManager = fgServerManeger;
+    protected final void setFGServerManeger(
+            final FGServerManeger fgServerManeger) {
+        this.fgServerManager = fgServerManeger;
     }
 
-    private Log _log = LogFactoryUtil.getLog(FGServerSetMVCActionCommand.class);
-    private FGServerManeger _fgServerManager;
+    /**
+     * The logger.
+     */
+    private Log log = LogFactoryUtil.getLog(FGServerSetMVCActionCommand.class);
+
+    /**
+     * The reference to the FG Server manager.
+     */
+    private FGServerManeger fgServerManager;
 }

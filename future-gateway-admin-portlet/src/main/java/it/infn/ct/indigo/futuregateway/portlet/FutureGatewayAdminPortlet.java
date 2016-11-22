@@ -19,6 +19,7 @@
  * the License.
  **********************************************************************
  */
+
 package it.infn.ct.indigo.futuregateway.portlet;
 
 import it.infn.ct.indigo.futuregateway.constants.FutureGatewayAdminPortletKeys;
@@ -41,53 +42,76 @@ import javax.portlet.RenderResponse;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+/**
+ * Main portlet for the Future Gateway (FG) administration.
+ */
 @Component(
-	immediate = true,
-	property = {
-		"com.liferay.portlet.css-class-wrapper=futuregateway_admin-portlet",
-		"com.liferay.portlet.display-category=category.hidden",
-		"com.liferay.portlet.header-portlet-css=/css/main.css",
-		"com.liferay.portlet.layout-cacheable=true",
-		"com.liferay.portlet.private-request-attributes=false",
-		"com.liferay.portlet.private-session-attributes=false",
-		"com.liferay.portlet.render-weight=50",
-		"com.liferay.portlet.use-default-template=true",
-		"javax.portlet.display-name=FutureGateway",
-		"javax.portlet.expiration-cache=0",
-		"javax.portlet.init-param.template-path=/",
-		"javax.portlet.init-param.view-template=/view.jsp",
-		"javax.portlet.name=" + FutureGatewayAdminPortletKeys.FutureGatewayAdmin,
-		"javax.portlet.resource-bundle=content.Language",
-		"javax.portlet.security-role-ref=power-user,user",
-		"javax.portlet.supports.mime-type=text/html"
-	},
-	service = Portlet.class
+        immediate = true,
+        property = {
+                "com.liferay.portlet.css-class-wrapper="
+                        + "futuregateway_admin-portlet",
+                "com.liferay.portlet.display-category=category.hidden",
+                "com.liferay.portlet.header-portlet-css=/css/main.css",
+                "com.liferay.portlet.layout-cacheable=true",
+                "com.liferay.portlet.private-request-attributes=false",
+                "com.liferay.portlet.private-session-attributes=false",
+                "com.liferay.portlet.render-weight=50",
+                "com.liferay.portlet.use-default-template=true",
+                "javax.portlet.display-name=FutureGateway",
+                "javax.portlet.expiration-cache=0",
+                "javax.portlet.init-param.template-path=/",
+                "javax.portlet.init-param.view-template=/view.jsp",
+                "javax.portlet.name="
+                        + FutureGatewayAdminPortletKeys.FUTURE_GATEWAY_ADMIN,
+                "javax.portlet.resource-bundle=content.Language",
+                "javax.portlet.security-role-ref=power-user,user",
+                "javax.portlet.supports.mime-type=text/html"
+                },
+        service = Portlet.class
 )
 public class FutureGatewayAdminPortlet extends MVCPortlet {
 
-	@Override
-	protected void doDispatch(RenderRequest renderRequest, RenderResponse renderResponse)
-			throws IOException, PortletException {
-		ThemeDisplay themeDisplay = (ThemeDisplay)renderRequest.getAttribute(WebKeys.THEME_DISPLAY);
-		try{
-			String fgURL = _fgServerManager.getFGUrl(themeDisplay.getCompanyId());
+    @Override
+    protected final void doDispatch(
+            final RenderRequest renderRequest,
+            final RenderResponse renderResponse)
+                    throws IOException, PortletException {
+        ThemeDisplay themeDisplay =
+                (ThemeDisplay) renderRequest.getAttribute(
+                        WebKeys.THEME_DISPLAY);
+        try {
+            String fgURL = fgServerManager.getFGUrl(
+                    themeDisplay.getCompanyId());
             renderRequest.setAttribute("FGURL", fgURL);
-	        if (fgURL == null || fgURL.isEmpty()) {
-	            include("/setup.jsp", renderRequest, renderResponse);
-	            return;
-	        }
-		} catch (PortalException pe) {
-			_log.info("The FutureGateway URL cannot be retrieved");
-		}
-		super.doDispatch(renderRequest, renderResponse);
-	}
-
-	@Reference(unbind = "-")
-    protected void setFGServerManeger(FGServerManeger fgServerManeger) {
-            this._fgServerManager = fgServerManeger;
+            if (fgURL == null || fgURL.isEmpty()) {
+                include("/setup.jsp", renderRequest, renderResponse);
+                return;
+            }
+        } catch (PortalException pe) {
+            log.info("The FutureGateway URL cannot be retrieved");
+        }
+        super.doDispatch(renderRequest, renderResponse);
     }
 
+    /**
+     * Sets the FG Server manager.
+     * This is used to get information of the service and for interactions.
+     *
+     * @param fgServerManeger The FG Server manager
+     */
+    @Reference(unbind = "-")
+    protected final void setFGServerManeger(
+            final FGServerManeger fgServerManeger) {
+        this.fgServerManager = fgServerManeger;
+    }
 
-	private Log _log = LogFactoryUtil.getLog(FutureGatewayAdminPortlet.class);
-	private FGServerManeger _fgServerManager;
+    /**
+     * The logger.
+     */
+    private Log log = LogFactoryUtil.getLog(FutureGatewayAdminPortlet.class);
+
+    /**
+     * The reference to the FG Server manager.
+     */
+    private FGServerManeger fgServerManager;
 }

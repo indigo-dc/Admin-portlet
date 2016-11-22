@@ -27,16 +27,18 @@ import javax.portlet.RenderResponse;
 
 import org.osgi.service.component.annotations.Component;
 
-import com.liferay.portal.kernel.log.Log;
-import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCRenderCommand;
 
 import it.infn.ct.indigo.futuregateway.constants.FutureGatewayAdminPortletKeys;
 
+/**
+ * Implementation of the set FG server render command.
+ */
 @Component(
         immediate = true,
         property = {
-                "javax.portlet.name=" + FutureGatewayAdminPortletKeys.FutureGatewayAdmin,
+                "javax.portlet.name="
+                        + FutureGatewayAdminPortletKeys.FUTURE_GATEWAY_ADMIN,
                 "mvc.command.name=/fg/setServer"
         },
         service = MVCRenderCommand.class
@@ -44,9 +46,9 @@ import it.infn.ct.indigo.futuregateway.constants.FutureGatewayAdminPortletKeys;
 public class FGServerSetMVCRenderCommand implements MVCRenderCommand {
 
     @Override
-    public String render(RenderRequest renderRequest, RenderResponse renderResponse) throws PortletException {
+    public final String render(
+            final RenderRequest renderRequest,
+            final RenderResponse renderResponse) throws PortletException {
         return "/setup.jsp";
     }
-
-    private Log _log = LogFactoryUtil.getLog(FGServerSetMVCRenderCommand.class);
 }

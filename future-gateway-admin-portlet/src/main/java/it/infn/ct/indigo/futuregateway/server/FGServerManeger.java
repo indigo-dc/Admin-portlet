@@ -42,87 +42,170 @@ import com.liferay.portal.kernel.module.framework.ModuleServiceLifecycle;
 import com.liferay.portal.kernel.service.CompanyLocalService;
 
 /**
- * 
- * @author Marco Fargetta
+ * Manager of the Future Gateway instance.
+ * The manager is responsible to keep the information of the Future Gateway
+ * instance to use in the portal and the basic interaction during the
+ * administration.
+ *
+ * <i>Note: the class is responsible for the interaction server side,
+ * other interactions will occure on the client side by the javascript
+ * part of the portlet.</i>
  */
 @Component(immediate = true, service = FGServerManeger.class)
 public class FGServerManeger {
 
-	public void setFGUrl(long companyId, String url) throws PortalException {
-		_expandoValueLocalService.addValue(
+    /**
+     * Sets the FG end point for the portal instance.
+     *
+     * @param companyId The id of the instance
+     * @param url The URL of the FG
+     * @throws PortalException If the value cannot be saved
+     */
+    public final void setFGUrl(final long companyId, final String url)
+            throws PortalException {
+        expandoValueService.addValue(
                 companyId, FGServerManeger.class.getName(), "FG", "fgUrl",
                 0, url);
-	}
-
-	public String getFGUrl(long companyId) throws PortalException {
-		return _expandoValueLocalService.getData(companyId,
-				FGServerManeger.class.getName(), "FG", "fgUrl", 0, "");
-	}
-
-	@Activate
-	protected void activate() {
-		List<Company> companys = _companyLocalService.getCompanies();
-
-		for (Company company : companys) {
-			try {
-				setupExpando(company.getCompanyId());
-			} catch (Exception e) {
-				if (_log.isWarnEnabled()) {
-					_log.warn("Unable to setup FutureGateway service for company " + company.getCompanyId() + ": "
-							+ e.getMessage());
-				}
-			}
-		}
-	}
-	
-	@Reference(unbind = "-")
-	protected void setCompanyLocalService(CompanyLocalService companyLocalService) {
-
-		_companyLocalService = companyLocalService;
-	}
-
-	@Reference(unbind = "-")
-	protected void setExpandoColumnLocalService(ExpandoColumnLocalService expandoColumnLocalService) {
-
-		_expandoColumnLocalService = expandoColumnLocalService;
-	}
-
-	@Reference(unbind = "-")
-	protected void setExpandoTableLocalService(ExpandoTableLocalService expandoTableLocalService) {
-
-		_expandoTableLocalService = expandoTableLocalService;
-	}
-
-	@Reference(unbind = "-")
-    protected void setExpandoValueLocalService(
-            ExpandoValueLocalService expandoValueLocalService) {
-
-            _expandoValueLocalService = expandoValueLocalService;
     }
 
-	@Reference(target = ModuleServiceLifecycle.PORTAL_INITIALIZED, unbind = "-")
-	protected void setModuleServiceLifecycle(ModuleServiceLifecycle moduleServiceLifecycle) {
-	}
+    /**
+     * Retrieves the FG end point for the portal instance.
+     *
+     * @param companyId The id of the instance
+     * @return The URL of the FG
+     * @throws PortalException If the values cannot be accessed
+     */
+    public final String getFGUrl(final long companyId)
+            throws PortalException {
+        return expandoValueService.getData(companyId,
+                FGServerManeger.class.getName(), "FG", "fgUrl", 0, "");
+    }
 
-	protected void setupExpando(long companyId) throws Exception {
-		ExpandoTable table = null;
+    /**
+     * Actions to do when the component is activated.
+     * The only activity is to create the tables in the DB to save
+     * the configurations for the FG
+     */
+    @Activate
+    protected final void activate() {
+        List<Company> companys = companyService.getCompanies();
 
-		try {
-			table = _expandoTableLocalService.addTable(companyId, FGServerManeger.class.getName(), "FG");
-		} catch (DuplicateTableNameException dtne) {
-			table = _expandoTableLocalService.getTable(companyId, FGServerManeger.class.getName(), "FG");
-		}
+        for (Company company : companys) {
+            try {
+                setupExpando(company.getCompanyId());
+            } catch (Exception e) {
+                if (log.isWarnEnabled()) {
+                    log.warn("Unable to setup FutureGateway service for"
+                            + " company " + company.getCompanyId() + ": "
+                            + e.getMessage());
+                }
+            }
+        }
+    }
 
-		try {
-			_expandoColumnLocalService.addColumn(table.getTableId(), "fgUrl", ExpandoColumnConstants.STRING);
-		} catch (DuplicateColumnNameException dcne) {
-		}
-	}
+    /**
+     * Sets the company service.
+     * Used to retrieve the list of instances during the activation
+     *
+     * @param companyLocalService The local company service
+     */
+    @Reference(unbind = "-")
+    protected final void setCompanyLocalService(
+            final CompanyLocalService companyLocalService) {
+        companyService = companyLocalService;
+    }
 
-	private static final Log _log = LogFactoryUtil.getLog(FGServerManeger.class);
+    /**
+     * Sets the ExpandoColumn service.
+     * Used to add columns in the expando table related to the FG
+     *
+     * @param expandoColumnLocalService The local expando column service
+     */
+    @Reference(unbind = "-")
+    protected final void setExpandoColumnLocalService(
+            final ExpandoColumnLocalService expandoColumnLocalService) {
+        expandoColumnService = expandoColumnLocalService;
+    }
 
-	private CompanyLocalService _companyLocalService;
-	private ExpandoColumnLocalService _expandoColumnLocalService;
-	private ExpandoTableLocalService _expandoTableLocalService;
-    private ExpandoValueLocalService _expandoValueLocalService;
+    /**
+     * Sets the ExpandoTable service.
+     * Used to create an expando table for the FG
+     *
+     * @param expandoTableLocalService The local expando table service
+     */
+    @Reference(unbind = "-")
+    protected final void setExpandoTableLocalService(
+            final ExpandoTableLocalService expandoTableLocalService) {
+        expandoTableService = expandoTableLocalService;
+    }
+
+    /**
+     * Sets the ExpandoValue service.
+     * Used to save and retrive values from the expando table
+     *
+     * @param expandoValueLocalService The local expando value service
+     */
+    @Reference(unbind = "-")
+    protected final void setExpandoValueLocalService(
+            final ExpandoValueLocalService expandoValueLocalService) {
+        expandoValueService = expandoValueLocalService;
+    }
+
+    /**
+     * Sets the ModuleServiceLifecycle.
+     * <b>Not used</b>
+     * @param moduleServiceLifecycle The module service lifecycle
+     */
+    @Reference(target = ModuleServiceLifecycle.PORTAL_INITIALIZED, unbind = "-")
+    protected final void setModuleServiceLifecycle(
+            final ModuleServiceLifecycle moduleServiceLifecycle) {
+    }
+
+    /**
+     * Creates the expando table for the FG.
+     *
+     * @param companyId The id of the instance owning the table
+     * @throws Exception If the table cannot be created
+     */
+    protected final void setupExpando(final long companyId) throws Exception {
+        ExpandoTable table = null;
+        try {
+            table = expandoTableService.addTable(
+                    companyId, FGServerManeger.class.getName(), "FG");
+        } catch (DuplicateTableNameException dtne) {
+            table = expandoTableService.getTable(
+                    companyId, FGServerManeger.class.getName(), "FG");
+        }
+
+        try {
+            expandoColumnService.addColumn(
+                    table.getTableId(), "fgUrl", ExpandoColumnConstants.STRING);
+        } catch (DuplicateColumnNameException dcne) {
+        }
+    }
+
+    /**
+     * The logger.
+     */
+    private final Log log = LogFactoryUtil.getLog(FGServerManeger.class);
+
+    /**
+     * The Company service.
+     */
+    private CompanyLocalService companyService;
+
+    /**
+     * The ExpandoColumn service.
+     */
+    private ExpandoColumnLocalService expandoColumnService;
+
+    /**
+     * The ExpandoTable service.
+     */
+    private ExpandoTableLocalService expandoTableService;
+
+    /**
+     * The ExpandoValue service.
+     */
+    private ExpandoValueLocalService expandoValueService;
 }

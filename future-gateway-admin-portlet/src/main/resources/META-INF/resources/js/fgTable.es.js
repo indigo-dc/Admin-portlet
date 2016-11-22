@@ -6,6 +6,7 @@ import Modal from 'metal-modal/src/Modal';
 import Ajax from 'metal-ajax/src/Ajax';
 import TreeView from 'metal-treeview/src/Treeview';
 
+
 class FgTable {
 	constructor(apiUrl = 'https://localhost/apis/v1.0 ',
 	        tableIdentifier='#application', token='') {
