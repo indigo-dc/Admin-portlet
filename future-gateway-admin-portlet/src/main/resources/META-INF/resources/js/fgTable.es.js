@@ -21,8 +21,6 @@ class FgTable {
 	        return;
 	    }
 	    
-        var table_data = [{'col1':'test1', 'col2':'test2'},{'col1':'test3', 'col2':'test4'}];
-        
         var headers = new MultiMap();
         headers.add('Authorization', 'Bearer ' + this.token);
         headers.add('content-type', 'application/json');
@@ -71,7 +69,7 @@ class FgTable {
             var resourceId = resource + id + date.getTime();
             var modalTask = new Modal({
                 elementClasses: 'modal-boot',
-                header: '<h4 class="modal-title">Task: ' + id + '</h4>',
+                header: '<h4 class="modal-title">' + resource.substring(0, resource.length - 1).capitalize() + ': ' + id + '</h4>',
                 body: '<div id="' + resourceId + '"></div>'
             });
 
