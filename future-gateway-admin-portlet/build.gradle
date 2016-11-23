@@ -43,3 +43,9 @@ targetCompatibility = 1.7
 apply plugin: 'checkstyle'
 checkstyle.toolVersion = '6.6'
 
+task jsCheck(type: Exec) {
+    executable "jscs"
+    args "src/main/resources/META-INF/resources/js"
+}
+
+check.dependsOn jsCheck
