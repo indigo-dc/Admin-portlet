@@ -47,8 +47,8 @@ class FgTable {
           if (keyEntry == 'id') {
             entry[keyEntry] = '<a href="#' + entry[keyEntry] +
               '" onClick="' + detailsCallback + '(\'' +
-              entry[keyEntry] + '\', \'' + resource + '\')">' + entry[keyEntry] +
-              '</a>';
+              entry[keyEntry] + '\', \'' + resource + '\')">' +
+              entry[keyEntry] + '</a>';
           }
           entry[keyEntry.capitalize()] = entry[keyEntry];
           delete(entry[keyEntry]);
@@ -56,7 +56,7 @@ class FgTable {
       });
       var dt = new Datatable(
           {
-            data: tableData,
+            data: tableData.reverse(),
             displayColumnsType: false,
             formatColumns: unsortColumns,
           },
@@ -90,8 +90,9 @@ class FgTable {
           resource.substring(0, resource.length - 1).capitalize() +
           ': ' + id + '</h4>',
         body: '<div id="' + resourceId + '"></div>',
-        footer: '<button type="button" onClick="'+deleteCallback+'(\''+
-            id + '\',\'' + resource + '\')" class="btn btn-danger">Delete</button>',
+        footer: '<button type="button" onClick="' + deleteCallback +
+            '(\'' + id + '\',\'' + resource +
+            '\')" class="btn btn-danger">Delete</button>',
       });
 
       new TreeView({
@@ -102,7 +103,15 @@ class FgTable {
   }
 
   delete(id, resource) {
-    alert('Delete ' + resource + ': ' + id);
+    var headers = new MultiMap();
+    headers.add('Authorization', 'Bearer ' + this.token);
+    headers.add('content-type', 'application/json');
+
+    var resourceDetailsCall = Ajax.request(this.apiUrl + '/' + resource +
+        '/' + id, 'DELETE', null, headers, null);
+    resourceDetailsCall.then(function() {
+      window.location.reload();
+    });
   }
 
   static convertToNodes(json) {

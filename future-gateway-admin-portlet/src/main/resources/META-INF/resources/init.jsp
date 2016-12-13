@@ -36,7 +36,7 @@
 <%@ page import="com.liferay.portal.kernel.util.ParamUtil" %>
 <%@ page import="com.liferay.portal.kernel.util.PortalUtil"%>
 <%@ page import="com.liferay.portal.util.PropsValues"%>
-
+<%@ page import="com.liferay.portal.kernel.language.LanguageUtil" %>
 <liferay-theme:defineObjects />
 
 <portlet:defineObjects />
