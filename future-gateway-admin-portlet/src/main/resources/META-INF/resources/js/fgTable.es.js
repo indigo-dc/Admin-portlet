@@ -17,8 +17,7 @@ class FgTable {
   }
 
   render(resource, columns, detailsCallback) {
-    if (this.token.substring(0, 4) == 'User' ||
-        this.token.substring(0, 7) == 'No JSON') {
+    if (this.token == null) {
       Dom.append(
           this.tableIdentifier,
           '<h1 class="">No Token available.</h1>'

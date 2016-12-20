@@ -26,27 +26,31 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCRenderCommand;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.util.PortalUtil;
 
 import it.infn.ct.indigo.futuregateway.constants.FutureGatewayAdminPortletKeys;
+import it.infn.ct.indigo.futuregateway.server.FGServerManeger;
 
 /**
- * Implementation of the set FG server render command.
+ * Implementation of the set FG server action command.
  */
 @Component(
         immediate = true,
         property = {
                 "javax.portlet.name="
                         + FutureGatewayAdminPortletKeys.FUTURE_GATEWAY_ADMIN,
-                "mvc.command.name=/fg/setServer"
+                "mvc.command.name=/fg/addApp"
         },
         service = MVCRenderCommand.class
 )
-public class FGServerSetMVCRenderCommand implements MVCRenderCommand {
+public class FGAddAppMVCRenderCommand implements MVCRenderCommand {
 
     @Override
     public final String render(
@@ -57,12 +61,33 @@ public class FGServerSetMVCRenderCommand implements MVCRenderCommand {
         } catch (Exception e) {
             if (e instanceof PrincipalException) {
                 SessionErrors.add(renderRequest, e.getClass());
-
                 return "/error.jsp";
             } else {
                 throw new PortletException(e);
             }
         }
-        return "/setup.jsp";
+        return "/add_application.jsp";
     }
+
+    /**
+     * Sets the FG Server manager.
+     * This is used to get information of the service and for interactions.
+     *
+     * @param fgServerManeger The FG Server manager
+     */
+    @Reference(unbind = "-")
+    protected final void setFGServerManeger(
+            final FGServerManeger fgServerManeger) {
+        this.fgServerManager = fgServerManeger;
+    }
+
+    /**
+     * The logger.
+     */
+    private Log log = LogFactoryUtil.getLog(FGAddAppMVCRenderCommand.class);
+
+    /**
+     * The reference to the FG Server manager.
+     */
+    private FGServerManeger fgServerManager;
 }
