@@ -29,14 +29,55 @@ String toolbarItem = ParamUtil.getString(renderRequest, "toolbarItem", "view-all
 
 <%@ include file="/fragments/toolbar.jspf" %>
 
+<div id="<portlet:namespace />ResourcesTable">
+</div>
+
 <c:choose>
     <c:when test="${param.toolbarItem eq 'view-all-apps'}">
         <liferay-util:include page="/applications.jsp" servletContext="<%= application %>" />
+        <script>
+            var resource = 'applications';
+            var columns = ['id', 'name', 'enabled', 'outcome'];
+        </script>
     </c:when>
     <c:when test="${param.toolbarItem eq 'view-all-infras'}">
     <h1>Here should be the Infra list</h1>
     </c:when>
     <c:otherwise>
         <liferay-util:include page="/tasks.jsp" servletContext="<%= application %>" />
+        <script>
+            var resource = 'tasks';
+            var columns = ['id', 'date', 'status', 'description'];
+        </script>
     </c:otherwise>
 </c:choose>
+
+<aui:script require="future-gateway-admin-portlet/js/fgTable.es">
+    var Table = futureGatewayAdminPortletJsFgTableEs.default;
+    var table = null;
+
+    Liferay.Service(
+            '/iam.token/get-token',
+            function(obj) {
+                table = new Table('${FGURL}', document.getElementById('<portlet:namespace />ResourcesTable'), obj.token);
+                table.render(resource, columns, '<portlet:namespace />resourceDetails');
+            }
+    );
+
+    Liferay.provide(
+        window,
+        '<portlet:namespace />resourceDetails',
+        function (id, resource) {
+            table.showDetails(id, resource, '<portlet:namespace />resourceDelete');
+        },
+        []);
+
+    Liferay.provide(
+        window,
+        '<portlet:namespace />resourceDelete',
+        function (id, resource) {
+            table.delete(id, resource, '<portlet:namespace />resourceDelete');
+        },
+        []);
+        
+</aui:script>

@@ -17,8 +17,7 @@ class FgTable {
   }
 
   render(resource, columns, detailsCallback) {
-    if (this.token.substring(0, 4) == 'User' ||
-        this.token.substring(0, 7) == 'No JSON') {
+    if (this.token == null) {
       Dom.append(
           this.tableIdentifier,
           '<h1 class="">No Token available.</h1>'
@@ -46,9 +45,9 @@ class FgTable {
         columns.forEach(function(keyEntry) {
           if (keyEntry == 'id') {
             entry[keyEntry] = '<a href="#' + entry[keyEntry] +
-              '" onClick="' + detailsCallback + '(' +
-              entry[keyEntry] + ')">' + entry[keyEntry] +
-              '</a>';
+              '" onClick="' + detailsCallback + '(\'' +
+              entry[keyEntry] + '\', \'' + resource + '\')">' +
+              entry[keyEntry] + '</a>';
           }
           entry[keyEntry.capitalize()] = entry[keyEntry];
           delete(entry[keyEntry]);
@@ -56,7 +55,7 @@ class FgTable {
       });
       var dt = new Datatable(
           {
-            data: tableData,
+            data: tableData.reverse(),
             displayColumnsType: false,
             formatColumns: unsortColumns,
           },
@@ -64,15 +63,13 @@ class FgTable {
     });
   }
 
-  showDetails(resource, id) {
+  showDetails(id, resource, deleteCallback) {
     if (this.token.substring(0, 4) == 'User' ||
         this.token.substring(0, 7) == 'No JSON') {
       var modalError = new Modal({
         elementClasses: 'modal-boot',
         header: '<h4 class="modal-title">Error</h4>',
         body: 'No token available!',
-        footer: '<button type="button"' +
-          ' class="btn btn-primary">OK</button>',
       });
       modalError.show();
       return;
@@ -92,12 +89,27 @@ class FgTable {
           resource.substring(0, resource.length - 1).capitalize() +
           ': ' + id + '</h4>',
         body: '<div id="' + resourceId + '"></div>',
+        footer: '<button type="button" onClick="' + deleteCallback +
+            '(\'' + id + '\',\'' + resource +
+            '\')" class="btn btn-danger">Delete</button>',
       });
 
       new TreeView({
         nodes: FgTable.convertToNodes(JSON.parse(data.response)),
       }, '#' + resourceId);
       modalTask.show();
+    });
+  }
+
+  delete(id, resource) {
+    var headers = new MultiMap();
+    headers.add('Authorization', 'Bearer ' + this.token);
+    headers.add('content-type', 'application/json');
+
+    var resourceDetailsCall = Ajax.request(this.apiUrl + '/' + resource +
+        '/' + id, 'DELETE', null, headers, null);
+    resourceDetailsCall.then(function() {
+      window.location.reload();
     });
   }
 
@@ -140,6 +152,7 @@ class FgTable {
     return nodes;
   }
 };
+
 
 function unsortColumns(columns) {
   return columns;

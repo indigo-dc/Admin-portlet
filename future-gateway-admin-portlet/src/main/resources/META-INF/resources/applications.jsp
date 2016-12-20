@@ -22,31 +22,15 @@
  */
 --%>
 <%@ include file="/init.jsp" %>
+    <liferay-frontend:add-menu>
+        <portlet:renderURL var="viewAppsURL">
+            <portlet:param name="toolbarItem" value="<%= "view-all-apps" %>" />
+        </portlet:renderURL>
 
-<div id="<portlet:namespace />ApplicationsTable">
-</div>
- 
-<aui:script require="future-gateway-admin-portlet/js/fgTable.es">
-    var Table = futureGatewayAdminPortletJsFgTableEs.default;
-    var columns = ['id', 'name', 'enabled', 'outcome'];
-    Liferay.Service(
-            '/iam.token/get-token',
-            function(obj) {
-                var table = new Table('${FGURL}', document.getElementById('<portlet:namespace />ApplicationsTable'), obj);
-                table.render('applications', columns, 'applicationDetails', obj);
-            }
-    );
+        <portlet:renderURL var="addAppURL">
+            <portlet:param name="mvcRenderCommandName" value="/fg/addApp" />
+            <portlet:param name="redirect" value="<%= viewAppsURL %>" />
+        </portlet:renderURL>
 
-    Liferay.provide(
-        window,
-        'applicationDetails',
-        function (id) {
-            Liferay.Service(
-                '/iam.token/get-token',
-                function(obj) {
-                    var table = new Table('${FGURL}', document.getElementById('<portlet:namespace />ApplicationsTable'), obj);
-                    table.showDetails('applications', id);
-                });
-        },
-        []);
-</aui:script>
+        <liferay-frontend:add-menu-item title='<%= LanguageUtil.get(request, "fg-applicatons") %>' url="<%= addAppURL.toString() %>" />
+    </liferay-frontend:add-menu>
