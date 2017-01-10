@@ -29,45 +29,27 @@ String redirect = ParamUtil.getString(request, "redirect");
 portletDisplay.setShowBackIcon(true);
 portletDisplay.setURLBack(redirect);
 
-renderResponse.setTitle(LanguageUtil.get(request, "fg-add-app"));
-Map<String, String> infras = request.getAttribute(FutureGatewayAdminPortletKeys.FUTURE_GATEWAY_INFRASTRUCTURE_COLLECTION);
+renderResponse.setTitle(LanguageUtil.get(request, "fg-add-infra"));
 %>
 
-<portlet:actionURL name="/fg/addApp" var="addAppActionURL" />
+<portlet:actionURL name="/fg/addInfra" var="addInfraActionURL" />
 
 <liferay-ui:error exception="<%= IOException.class %>" message="fg-connection-error"/>
-<aui:form action="<%= addAppActionURL %>" cssClass="container-fluid-1280" method="post" name="fm">
+<aui:form action="<%= addInfraActionURL %>" cssClass="container-fluid-1280" method="post" name="fm">
     <aui:input name="<%= Constants.CMD %>" type="hidden" value="<%= Constants.ADD %>" />
     <aui:input name="redirect" type="hidden" value="<%= redirect %>" />
     <aui:fieldset-group markupView="lexicon">
         <div class="row">
             <aui:fieldset cssClass="col-md-6">
-                <aui:input name="fg-app-name">
+                <aui:input name="fg-infra-name">
                     <aui:validator name="required" />
                 </aui:input>
-                <aui:input name="fg-app-enabled" type="checkbox" checked="true"/>
-                <aui:input name="fg-app-description" type="text">
+                <aui:input name="fg-infra-enabled" type="checkbox" checked="true"/>
+                <aui:input name="fg-infra-virtual" type="checkbox" checked="true"/>
+                <aui:input name="fg-infra-description" type="text">
                 </aui:input>
-                <aui:select name="fg-app-outcome">
-                    <aui:option selected="true" value="RESOURCE">
-                        RESOURCE
-                    </aui:option> 
-                    <aui:option value="JOB">
-                        JOB
-                    </aui:option>
-                </aui:select>
-                <aui:select name="fg-app-infrastructure"  multiple="true">
-                <%
-                for (String infraId: infras.keySet()) {
-                %>
-                    <aui:option value="<%= infraId %>">
-                        <%= infras.get(infraId) %>
-                    </aui:option>
-                <% } %>
-                </aui:select>
-                <aui:spacer/>
             </aui:fieldset>
-            <aui:fieldset cssClass="col-md-5" label="fg-app-parameters">
+            <aui:fieldset cssClass="col-md-5" label="fg-infra-parameters">
                 <div id="<portlet:namespace />paramContainer"></div>
                 <aui:button name="add_parameter" value="+" onClick="<%= renderResponse.getNamespace() + "addParameter()" %>" />
             </aui:fieldset>
@@ -83,11 +65,11 @@ Map<String, String> infras = request.getAttribute(FutureGatewayAdminPortletKeys.
         function () {
             var generatedId = (+new Date).toString(36).slice(-5);
             var newParam = `<div id="<portlet:namespace/>generatedId" style="display: none;"><hr/>
-                <aui:input name="fg-app-parameter-name">
+                <aui:input name="fg-infra-parameter-name">
                 </aui:input>
-                <aui:input name="fg-app-parameter-value">
+                <aui:input name="fg-infra-parameter-value">
                 </aui:input>
-                <aui:input name="fg-app-parameter-description" type="textarea">
+                <aui:input name="fg-infra-parameter-description" type="textarea">
                 </aui:input>
                 <aui:button cssClass="btn-danger" name="add_parameter" value="-" onClick="<%= renderResponse.getNamespace() + "removeParameter('generatedId');" %>" />
                 <hr/></div>`;

@@ -41,7 +41,11 @@ String toolbarItem = ParamUtil.getString(renderRequest, "toolbarItem", "view-all
         </script>
     </c:when>
     <c:when test="${param.toolbarItem eq 'view-all-infras'}">
-    <h1>Here should be the Infra list</h1>
+        <liferay-util:include page="/infrastructures.jsp" servletContext="<%= application %>" />
+        <script>
+            var resource = 'infrastructures';
+            var columns = ['id', 'name', 'enabled', 'virtual'];
+        </script>
     </c:when>
     <c:otherwise>
         <liferay-util:include page="/tasks.jsp" servletContext="<%= application %>" />
