@@ -21,6 +21,8 @@
  */
 package it.infn.ct.indigo.futuregateway.portlet.action;
 
+import java.util.Map;
+
 import javax.portlet.PortletException;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
@@ -33,13 +35,14 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCRenderCommand;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.servlet.SessionErrors;
-import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.util.WebKeys;
 
 import it.infn.ct.indigo.futuregateway.constants.FutureGatewayAdminPortletKeys;
 import it.infn.ct.indigo.futuregateway.server.FGServerManeger;
 
 /**
- * Implementation of the set FG server action command.
+ * Implementation of the add application in FG server render command.
  */
 @Component(
         immediate = true,
@@ -56,8 +59,20 @@ public class FGAddAppMVCRenderCommand implements MVCRenderCommand {
     public final String render(
             final RenderRequest renderRequest,
             final RenderResponse renderResponse) throws PortletException {
+
+        ThemeDisplay themeDisplay = (ThemeDisplay) renderRequest.getAttribute(
+                WebKeys.THEME_DISPLAY);
         try {
-            PortalUtil.getSelectedUser(renderRequest);
+            Map<String, String> infras = fgServerManager.getInfrastructures(
+                    themeDisplay.getCompanyId(), themeDisplay.getUserId());
+            if (infras.isEmpty()) {
+                return "/application-no-infras.jsp";
+            }
+            renderRequest.setAttribute(
+                    FutureGatewayAdminPortletKeys.
+                        FUTURE_GATEWAY_INFRASTRUCTURE_COLLECTION,
+                        infras
+                    );
         } catch (Exception e) {
             if (e instanceof PrincipalException) {
                 SessionErrors.add(renderRequest, e.getClass());

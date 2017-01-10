@@ -40,7 +40,43 @@ public final class FutureGatewayAdminPortletKeys {
     public static final String FUTURE_GATEWAY_ADMIN = "FutureGatewayAdmin";
 
     /**
+     * Content type for FG server messages.
+     */
+    public static final String FUTURE_GATEWAY_CONTENT_TYPE =
+            "application/vnd.indigo-datacloud.apiserver+json";
+
+    /**
      * Weight assigned to the portlet in the configuration panel.
      */
     public static final int FUTURE_GATEWAY_WIGHT = 101;
+
+    /**
+     * Name of the collection containing the applications.
+     */
+    public static final String FUTURE_GATEWAY_APPLICATION_COLLECTION =
+            "applications";
+
+    /**
+     * Name of the collection containing the applications.
+     */
+    public static final String FUTURE_GATEWAY_INFRASTRUCTURE_COLLECTION =
+            "infrastructures";
+
+    /**
+     * Name of the attribute providing the id.
+     */
+    public static final String FUTURE_GATEWAY_ATTRIBUTE_ID =
+            "id";
+
+    /**
+     * Name of the attribute providing the name.
+     */
+    public static final String FUTURE_GATEWAY_ATTRIBUTE_NAME =
+            "name";
+
+    /**
+     * Name of the attribute providing if it is enabled.
+     */
+    public static final String FUTURE_GATEWAY_ATTRIBUTE_ENABLED =
+            "enabled";
 }

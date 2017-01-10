@@ -30,11 +30,12 @@ portletDisplay.setShowBackIcon(true);
 portletDisplay.setURLBack(redirect);
 
 renderResponse.setTitle(LanguageUtil.get(request, "fg-add-app"));
-
+Map<String, String> infras = request.getAttribute(FutureGatewayAdminPortletKeys.FUTURE_GATEWAY_INFRASTRUCTURE_COLLECTION);
 %>
 
 <portlet:actionURL name="/fg/addApp" var="editUserActionURL" />
 
+<liferay-ui:error exception="<%= IOException.class %>" message="fg-connection-error"/>
 <aui:form action="<%= editUserActionURL %>" cssClass="container-fluid-1280" method="post" name="fm">
     <aui:input name="<%= Constants.CMD %>" type="hidden" value="<%= Constants.ADD %>" />
     <aui:input name="redirect" type="hidden" value="<%= redirect %>" />
@@ -44,7 +45,7 @@ renderResponse.setTitle(LanguageUtil.get(request, "fg-add-app"));
                 <aui:input name="fg-app-name">
                     <aui:validator name="required" />
                 </aui:input>
-                <aui:input name="fg-app-enabled" type="checkbox" checked="checked"/>
+                <aui:input name="fg-app-enabled" type="checkbox" checked="true"/>
                 <aui:input name="fg-app-description" type="text">
                 </aui:input>
                 <aui:select name="fg-app-outcome">
@@ -55,10 +56,14 @@ renderResponse.setTitle(LanguageUtil.get(request, "fg-add-app"));
                         JOB
                     </aui:option>
                 </aui:select>
-                <aui:select name="fg-app-infrastructure">
-                    <aui:option selected="true" value="DoNotWorkYet">
-                        Do Not Work Yet
-                    </aui:option> 
+                <aui:select name="fg-app-infrastructure"  multiple="true">
+                <%
+                for (String infraId: infras.keySet()) {
+                %>
+                    <aui:option value="<%= infraId %>">
+                        <%= infras.get(infraId) %>
+                    </aui:option>
+                <% } %>
                 </aui:select>
                 <aui:spacer/>
             </aui:fieldset>
