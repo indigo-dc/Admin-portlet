@@ -30,7 +30,7 @@ portletDisplay.setShowBackIcon(true);
 portletDisplay.setURLBack(redirect);
 
 renderResponse.setTitle(LanguageUtil.get(request, "fg-add-app"));
-Map<String, String> infras = request.getAttribute(FutureGatewayAdminPortletKeys.FUTURE_GATEWAY_INFRASTRUCTURE_COLLECTION);
+Map<String, String> infras = (Map<String, String>) request.getAttribute(FutureGatewayAdminPortletKeys.FUTURE_GATEWAY_INFRASTRUCTURE_COLLECTION);
 %>
 
 <portlet:actionURL name="/fg/addApp" var="addAppActionURL" />
@@ -46,7 +46,7 @@ Map<String, String> infras = request.getAttribute(FutureGatewayAdminPortletKeys.
                     <aui:validator name="required" />
                 </aui:input>
                 <aui:input name="fg-app-enabled" type="checkbox" checked="true"/>
-                <aui:input name="fg-app-description" type="text">
+                <aui:input name="fg-app-description" type="textarea">
                 </aui:input>
                 <aui:select name="fg-app-outcome">
                     <aui:option selected="true" value="RESOURCE">
@@ -58,12 +58,16 @@ Map<String, String> infras = request.getAttribute(FutureGatewayAdminPortletKeys.
                 </aui:select>
                 <aui:select name="fg-app-infrastructure"  multiple="true">
                 <%
-                for (String infraId: infras.keySet()) {
+                if (infras!=null && !infras.isEmpty()) {
+                    for (String infraId: infras.keySet()) {
                 %>
                     <aui:option value="<%= infraId %>">
                         <%= infras.get(infraId) %>
                     </aui:option>
-                <% } %>
+                <%
+                    }
+                }
+                %>
                 </aui:select>
                 <aui:spacer/>
             </aui:fieldset>

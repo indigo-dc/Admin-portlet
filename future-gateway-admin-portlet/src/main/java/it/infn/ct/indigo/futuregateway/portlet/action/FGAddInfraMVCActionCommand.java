@@ -69,8 +69,10 @@ public class FGAddInfraMVCActionCommand extends BaseMVCActionCommand {
         String name = ParamUtil.getString(actionRequest, "fg-infra-name");
         String description = ParamUtil.getString(actionRequest,
                 "fg-infra-description");
-        boolean enabled = ParamUtil.getBoolean(actionRequest, "fg-infra-enabled");
-        boolean virtual = ParamUtil.getBoolean(actionRequest, "fg-infra-virtual");
+        boolean enabled = ParamUtil.getBoolean(actionRequest,
+                "fg-infra-enabled");
+        boolean virtual = ParamUtil.getBoolean(actionRequest,
+                "fg-infra-virtual");
         String[] paramNames = ParamUtil.getStringValues(
                 actionRequest, "fg-infra-parameter-name");
         String[] paramValues = ParamUtil.getStringValues(
@@ -88,7 +90,8 @@ public class FGAddInfraMVCActionCommand extends BaseMVCActionCommand {
                     themeDisplay.getCompanyId(),
                     FutureGatewayAdminPortletKeys.
                         FUTURE_GATEWAY_INFRASTRUCTURE_COLLECTION,
-                    jsonApp.toJSONString());
+                    jsonApp.toJSONString(),
+                    themeDisplay.getUserId());
             sendRedirect(actionRequest, actionResponse, redirect);
         } catch (IOException io) {
             log.error(io.getMessage());

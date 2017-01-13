@@ -22,8 +22,11 @@
 package it.infn.ct.indigo.futuregateway.portlet.action;
 
 import java.io.IOException;
+import java.util.Map;
+
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
+import javax.portlet.PortletException;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -34,6 +37,7 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCActionCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
+import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ParamUtil;
@@ -90,11 +94,28 @@ public class FGAddAppMVCActionCommand extends BaseMVCActionCommand {
                     themeDisplay.getCompanyId(),
                     FutureGatewayAdminPortletKeys.
                         FUTURE_GATEWAY_APPLICATION_COLLECTION,
-                    jsonApp.toJSONString());
+                    jsonApp.toJSONString(), themeDisplay.getUserId());
             sendRedirect(actionRequest, actionResponse, redirect);
         } catch (IOException io) {
             log.error(io.getMessage());
             SessionErrors.add(actionRequest, io.getClass(), io);
+            try {
+                Map<String, String> mapInfras = fgServerManager.getInfrastructures(
+                        themeDisplay.getCompanyId(), themeDisplay.getUserId());
+                actionRequest.setAttribute(
+                        FutureGatewayAdminPortletKeys.
+                            FUTURE_GATEWAY_INFRASTRUCTURE_COLLECTION,
+                            mapInfras
+                        );
+            } catch (Exception e) {
+                if (e instanceof PrincipalException) {
+                    SessionErrors.add(actionRequest, e.getClass());
+                    actionResponse.setRenderParameter(
+                            "mvcPath", "/add_application.jsp");
+                    return "/error.jsp";
+                } else {
+                    throw new PortletException(e);
+                }
             actionResponse.setRenderParameter(
                     "mvcPath", "/add_application.jsp");
         }

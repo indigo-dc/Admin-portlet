@@ -101,26 +101,49 @@ public class FGServerManeger {
      * @param companyId The id of the instance
      * @param collection The name of the collection to post the new resource
      * @param resource The resource information in JSON format
+     * @param token The token of the user performing the action
      * @throws PortalException Cannot retrieve the server endpoint
      * @throws IOException Connect communicate with the server
      */
     public final void addResource(final long companyId,
-            final String collection, final String resource)
+            final String collection, final String resource,
+            final String token)
                     throws PortalException, IOException {
-        log.debug("Adding the new application: " + resource);
+        log.debug("Adding the new resource: " + resource);
+        log.info("Adding new resource to " + collection);
         URL url = new URL(getFGUrl(companyId) + "/" + collection);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setDoOutput(true);
         connection.setRequestMethod("POST");
-        connection.setRequestProperty("Content-Type", "application/json");
+        connection.setRequestProperty("Content-Type",
+                FutureGatewayAdminPortletKeys.FUTURE_GATEWAY_CONTENT_TYPE);
+        connection.setRequestProperty("Authorization",
+                "Bearer " + token);
         OutputStream os = connection.getOutputStream();
         os.write(resource.getBytes());
         os.flush();
         if (connection.getResponseCode() != HttpURLConnection.HTTP_CREATED) {
-            throw new IOException("Server response with code: "
+            throw new IOException("Impossible to add the resource."
+                    + "Server response with code: "
                     + connection.getResponseCode());
         }
         connection.disconnect();
+    }
+
+    /**
+     * Add a new resource into the FG service.
+     *
+     * @param companyId The id of the instance
+     * @param collection The name of the collection to post the new resource
+     * @param resource The resource information in JSON format
+     * @param userId The id of the user performing the action
+     * @throws Exception The resource cannot be added
+     */
+    public final void addResource(final long companyId,
+            final String collection, final String resource,
+            final long userId)
+                    throws Exception {
+        addResource(companyId, collection, resource, iam.getUserToken(userId));
     }
 
     /**
@@ -186,7 +209,7 @@ public class FGServerManeger {
         JSONArray jAInfras = jsonInfras.getJSONArray(
                 FutureGatewayAdminPortletKeys.
                     FUTURE_GATEWAY_INFRASTRUCTURE_COLLECTION);
-        log.debug("Available " + jAInfras.length() + "infrastructures");
+        log.debug("Available " + jAInfras.length() + " infrastructures");
         for (int i = 0; i < jAInfras.length(); i++) {
             JSONObject jOInfra = jAInfras.getJSONObject(i);
             log.debug("Infrastructure "
