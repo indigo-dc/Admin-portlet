@@ -56,6 +56,8 @@ String toolbarItem = ParamUtil.getString(renderRequest, "toolbarItem", "view-all
     </c:otherwise>
 </c:choose>
 
+<div id="<portlet:namespace />waitLoad" class="loading"><h2>Loading .....</h2></div>
+
 <aui:script require="future-gateway-admin-portlet/js/fgTable.es">
     var Table = futureGatewayAdminPortletJsFgTableEs.default;
     var table = null;
@@ -64,7 +66,7 @@ String toolbarItem = ParamUtil.getString(renderRequest, "toolbarItem", "view-all
             '/iam.token/get-token',
             function(obj) {
                 table = new Table('${FGURL}', document.getElementById('<portlet:namespace />ResourcesTable'), obj.token);
-                table.render(resource, columns, '<portlet:namespace />resourceDetails');
+                table.render(resource, columns, '<portlet:namespace />resourceDetails', document.getElementById('<portlet:namespace />waitLoad'));
             }
     );
 

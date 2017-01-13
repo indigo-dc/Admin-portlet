@@ -16,7 +16,7 @@ class FgTable {
     this.token = token;
   }
 
-  render(resource, columns, detailsCallback) {
+  render(resource, columns, detailsCallback, waitElement) {
     if (this.token == null) {
       Dom.append(
           this.tableIdentifier,
@@ -53,6 +53,7 @@ class FgTable {
           delete(entry[keyEntry]);
         });
       });
+      Dom.toggleClasses(waitElement, 'loaded');
       var dt = new Datatable(
           {
             data: tableData.reverse(),

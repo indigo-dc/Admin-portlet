@@ -36,7 +36,16 @@
             color: #1C75B9;
         }
     }
-    
+
+    .loading {
+        text-align: center;
+        font-style: italic;
+        color: gray;
+    }
+
+    .loaded {
+        display: none;
+    }
 }
 
 div.modal-boot[role=dialog] {

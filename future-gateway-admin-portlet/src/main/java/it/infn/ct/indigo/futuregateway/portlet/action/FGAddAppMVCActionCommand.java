@@ -100,7 +100,8 @@ public class FGAddAppMVCActionCommand extends BaseMVCActionCommand {
             log.error(io.getMessage());
             SessionErrors.add(actionRequest, io.getClass(), io);
             try {
-                Map<String, String> mapInfras = fgServerManager.getInfrastructures(
+                Map<String, String> mapInfras =
+                        fgServerManager.getInfrastructures(
                         themeDisplay.getCompanyId(), themeDisplay.getUserId());
                 actionRequest.setAttribute(
                         FutureGatewayAdminPortletKeys.
@@ -111,14 +112,14 @@ public class FGAddAppMVCActionCommand extends BaseMVCActionCommand {
                 if (e instanceof PrincipalException) {
                     SessionErrors.add(actionRequest, e.getClass());
                     actionResponse.setRenderParameter(
-                            "mvcPath", "/add_application.jsp");
-                    return "/error.jsp";
+                            "mvcPath", "/error.jsp");
                 } else {
                     throw new PortletException(e);
                 }
-            actionResponse.setRenderParameter(
-                    "mvcPath", "/add_application.jsp");
+            }
         }
+        actionResponse.setRenderParameter(
+                "mvcPath", "/add_application.jsp");
     }
 
     /**
