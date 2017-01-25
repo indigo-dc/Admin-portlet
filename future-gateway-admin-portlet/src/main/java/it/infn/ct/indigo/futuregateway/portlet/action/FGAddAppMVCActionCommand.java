@@ -21,7 +21,9 @@
  */
 package it.infn.ct.indigo.futuregateway.portlet.action;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.portlet.ActionRequest;
@@ -31,6 +33,7 @@ import javax.portlet.PortletException;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.log.Log;
@@ -40,11 +43,14 @@ import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.upload.UploadPortletRequest;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 
 import it.infn.ct.indigo.futuregateway.constants.FutureGatewayAdminPortletKeys;
+import it.infn.ct.indigo.futuregateway.server.FGServerConstants;
 import it.infn.ct.indigo.futuregateway.server.FGServerManeger;
 
 /**
@@ -83,18 +89,61 @@ public class FGAddAppMVCActionCommand extends BaseMVCActionCommand {
                 actionRequest, "fg-app-parameter-description");
         String[] infras = ParamUtil.getStringValues(actionRequest,
                 "fg-app-infrastructure");
+        String[] fileUrls = ParamUtil.getStringValues(actionRequest,
+                "fg-app-file-url");
+        UploadPortletRequest upr = PortalUtil.
+                getUploadPortletRequest(actionRequest);
+        File[] files = upr.getFiles("fg-app-file-update");
+        String[] fileNames = upr.getFileNames("fg-app-file-update");
+        Map<String, File> fileToTransfer = new HashMap<>();
 
-        JSONObject jsonApp = JSONFactoryUtil.createJSONObject();
-        jsonApp.put("name", name);
-        jsonApp.put("description", description);
-        jsonApp.put("enabled", enabled);
-        jsonApp.put("outcome", outcome);
+        JSONObject jApp = JSONFactoryUtil.createJSONObject();
+        jApp.put("name", name);
+        jApp.put("description", description);
+        jApp.put("enabled", enabled);
+        jApp.put("outcome", outcome);
+
+        JSONArray jParams = JSONFactoryUtil.createJSONArray();
+        for (int i = 0; i < paramNames.length; i++) {
+            if (Validator.isNotNull(paramNames[i])) {
+                JSONObject jPar = JSONFactoryUtil.createJSONObject();
+                jPar.put("name", paramNames[i]);
+                jPar.put("value", paramValues[i]);
+                jPar.put("description", paramDescriptions[i]);
+                jParams.put(jPar);
+            }
+        }
+        jApp.put("parameters", jParams);
+
+        JSONArray jInfras = JSONFactoryUtil.createJSONArray();
+        for (String in: infras) {
+            jInfras.put(in);
+        }
+        jApp.put("infrastructures", jInfras);
+
+        JSONArray jFiles = JSONFactoryUtil.createJSONArray();
+        for (int i = 0; i < fileNames.length; i++) {
+            if (Validator.isNotNull(fileNames[i])) {
+                jFiles.put(fileNames[i]);
+                fileToTransfer.put(fileNames[i], files[i]);
+            } else {
+                if (Validator.isNotNull(fileUrls[i])) {
+                    jFiles.put(fileUrls[i]);
+                }
+            }
+        }
+        jApp.put("files", jFiles);
         try {
-            fgServerManager.addResource(
+            String resourceId = fgServerManager.addResource(
                     themeDisplay.getCompanyId(),
-                    FutureGatewayAdminPortletKeys.
-                        FUTURE_GATEWAY_APPLICATION_COLLECTION,
-                    jsonApp.toJSONString(), themeDisplay.getUserId());
+                    FGServerConstants.APPLICATION_COLLECTION,
+                    jApp.toJSONString(), themeDisplay.getUserId());
+            if (!fileToTransfer.isEmpty()) {
+                fgServerManager.submitFilesResource(
+                        themeDisplay.getCompanyId(),
+                        FGServerConstants.APPLICATION_COLLECTION,
+                        resourceId, fileToTransfer, themeDisplay.getUserId());
+            }
             sendRedirect(actionRequest, actionResponse, redirect);
         } catch (IOException io) {
             log.error(io.getMessage());
@@ -104,8 +153,7 @@ public class FGAddAppMVCActionCommand extends BaseMVCActionCommand {
                         fgServerManager.getInfrastructures(
                         themeDisplay.getCompanyId(), themeDisplay.getUserId());
                 actionRequest.setAttribute(
-                        FutureGatewayAdminPortletKeys.
-                            FUTURE_GATEWAY_INFRASTRUCTURE_COLLECTION,
+                        FGServerConstants.INFRASTRUCTURE_COLLECTION,
                             mapInfras
                         );
             } catch (Exception e) {
@@ -117,9 +165,9 @@ public class FGAddAppMVCActionCommand extends BaseMVCActionCommand {
                     throw new PortletException(e);
                 }
             }
+            actionResponse.setRenderParameter(
+                    "mvcPath", "/add_application.jsp");
         }
-        actionResponse.setRenderParameter(
-                "mvcPath", "/add_application.jsp");
     }
 
     /**

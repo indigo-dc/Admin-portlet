@@ -22,11 +22,17 @@
 package it.infn.ct.indigo.futuregateway.server;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -102,10 +108,11 @@ public class FGServerManeger {
      * @param collection The name of the collection to post the new resource
      * @param resource The resource information in JSON format
      * @param token The token of the user performing the action
+     * @return The Id of the new resource
      * @throws PortalException Cannot retrieve the server endpoint
      * @throws IOException Connect communicate with the server
      */
-    public final void addResource(final long companyId,
+    public final String addResource(final long companyId,
             final String collection, final String resource,
             final String token)
                     throws PortalException, IOException {
@@ -114,6 +121,7 @@ public class FGServerManeger {
         URL url = new URL(getFGUrl(companyId) + "/" + collection);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setDoOutput(true);
+        connection.setDoInput(true);
         connection.setRequestMethod("POST");
         connection.setRequestProperty("Content-Type",
                 FutureGatewayAdminPortletKeys.FUTURE_GATEWAY_CONTENT_TYPE);
@@ -127,7 +135,18 @@ public class FGServerManeger {
                     + "Server response with code: "
                     + connection.getResponseCode());
         }
+        StringBuilder result = new StringBuilder();
+        try (BufferedReader br = new BufferedReader(
+                new InputStreamReader(connection.getInputStream()))) {
+            String readLine;
+            while ((readLine = br.readLine()) != null) {
+                result.append(readLine);
+            }
+        }
         connection.disconnect();
+        JSONObject jRes = JSONFactoryUtil.createJSONObject(result.toString());
+        return jRes.getString(
+                FGServerConstants.ATTRIBUTE_ID);
     }
 
     /**
@@ -137,13 +156,92 @@ public class FGServerManeger {
      * @param collection The name of the collection to post the new resource
      * @param resource The resource information in JSON format
      * @param userId The id of the user performing the action
+     * @return The Id of the new resource
      * @throws Exception The resource cannot be added
      */
-    public final void addResource(final long companyId,
+    public final String addResource(final long companyId,
             final String collection, final String resource,
             final long userId)
                     throws Exception {
-        addResource(companyId, collection, resource, iam.getUserToken(userId));
+        return addResource(companyId, collection, resource,
+                iam.getUserToken(userId));
+    }
+
+    /**
+     * Add files into a resource on FG service.
+     *
+     * @param companyId The id of the instance
+     * @param collection The name of the collection to post the new resource
+     * @param resourceId The resource requiring the files
+     * @param files The files to add to the resource
+     * @param token The token of the user performing the action
+     * @throws PortalException Cannot retrieve the server endpoint
+     * @throws IOException Connect communicate with the server
+     */
+    public final void submitFilesResource(final long companyId,
+            final String collection, final String resourceId,
+            final Map<String, File> files, final String token)
+                    throws PortalException, IOException {
+        String boundary = Long.toHexString(System.currentTimeMillis());
+        String crlf = "\r\n";
+        log.info("Adding new files to " + collection + "/" + resourceId);
+
+        URL url = new URL(getFGUrl(companyId) + "/" + collection + "/"
+                + resourceId + FGServerConstants.INPUT_PATH);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setDoOutput(true);
+        connection.setDoInput(true);
+        connection.setRequestMethod("POST");
+        connection.setRequestProperty("Content-Type",
+                "multipart/form-data; boundary=" + boundary);
+        connection.setRequestProperty("Authorization",
+                "Bearer " + token);
+
+        try (OutputStream output = connection.getOutputStream();
+                PrintWriter writer = new PrintWriter(
+                        new OutputStreamWriter(
+                                output, StandardCharsets.UTF_8), true);) {
+            for (String fName: files.keySet()) {
+                writer.append("--" + boundary).append(crlf);
+                writer.append(
+                        "Content-Disposition: form-data; "
+                        + "name=\"file[]\"; filename=\""
+                        + fName + "\"").append(crlf);
+                writer.append("Content-Type: "
+                        + URLConnection.guessContentTypeFromName(
+                                fName)).append(crlf);
+                writer.append("Content-Transfer-Encoding: binary").
+                    append(crlf);
+                writer.append(crlf).flush();
+                Files.copy(files.get(fName).toPath(), output);
+                output.flush();
+                writer.append(crlf).flush();
+            }
+            writer.append("--" + boundary + "--").append(crlf).flush();
+        }
+        if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+            throw new IOException("Impossible to post files to the resource "
+                    + collection + "/" + resourceId
+                    + ". Server response with code: "
+                    + connection.getResponseCode());
+        }
+    }
+
+    /**
+     * Add files into a resource on FG service.
+     *
+     * @param companyId The id of the instance
+     * @param collection The name of the collection to post the new resource
+     * @param resourceId The resource requiring the files
+     * @param files The files to add to the resource
+     * @param userId The id of the user performing the action
+     * @throws PortalException Cannot retrieve the server endpoint
+     * @throws IOException Connect communicate with the server
+     */
+    public final void submitFilesResource(final long companyId,
+            final String collection, final String resourceId,
+            final Map<String, File> files, final long userId)
+                    throws PortalException, IOException {
     }
 
     /**
@@ -200,31 +298,24 @@ public class FGServerManeger {
                     throws Exception {
         Map<String, String> mapInfras = new HashMap<>();
         String rawCollection = getCollection(companyId,
-                FutureGatewayAdminPortletKeys.
-                    FUTURE_GATEWAY_INFRASTRUCTURE_COLLECTION,
+                FGServerConstants.INFRASTRUCTURE_COLLECTION,
                 iam.getUserToken(userId));
         JSONObject jsonInfras =
                 JSONFactoryUtil.createJSONObject(rawCollection);
         log.debug("Infrastructure json: " + jsonInfras.toJSONString());
         JSONArray jAInfras = jsonInfras.getJSONArray(
-                FutureGatewayAdminPortletKeys.
-                    FUTURE_GATEWAY_INFRASTRUCTURE_COLLECTION);
+                FGServerConstants.INFRASTRUCTURE_COLLECTION);
         log.debug("Available " + jAInfras.length() + " infrastructures");
         for (int i = 0; i < jAInfras.length(); i++) {
             JSONObject jOInfra = jAInfras.getJSONObject(i);
             log.debug("Infrastructure "
-                    + jOInfra.getString(FutureGatewayAdminPortletKeys.
-                                FUTURE_GATEWAY_ATTRIBUTE_ID)
+                    + jOInfra.getString(FGServerConstants.ATTRIBUTE_ID)
                     + " enabled option is "
-                    + jOInfra.getBoolean(FutureGatewayAdminPortletKeys.
-                            FUTURE_GATEWAY_ATTRIBUTE_ENABLED));
-            if (jOInfra.getBoolean(FutureGatewayAdminPortletKeys.
-                    FUTURE_GATEWAY_ATTRIBUTE_ENABLED)) {
+                    + jOInfra.getBoolean(FGServerConstants.ATTRIBUTE_ENABLED));
+            if (jOInfra.getBoolean(FGServerConstants.ATTRIBUTE_ENABLED)) {
                 mapInfras.put(
-                        jOInfra.getString(FutureGatewayAdminPortletKeys.
-                                FUTURE_GATEWAY_ATTRIBUTE_ID),
-                        jOInfra.getString(FutureGatewayAdminPortletKeys.
-                                FUTURE_GATEWAY_ATTRIBUTE_NAME));
+                        jOInfra.getString(FGServerConstants.ATTRIBUTE_ID),
+                        jOInfra.getString(FGServerConstants.ATTRIBUTE_NAME));
             }
         }
         return mapInfras;

@@ -21,6 +21,7 @@
  */
 package it.infn.ct.indigo.futuregateway.portlet.action;
 
+import java.io.IOException;
 import java.util.Map;
 
 import javax.portlet.PortletException;
@@ -33,12 +34,12 @@ import org.osgi.service.component.annotations.Reference;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCRenderCommand;
-import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.WebKeys;
 
 import it.infn.ct.indigo.futuregateway.constants.FutureGatewayAdminPortletKeys;
+import it.infn.ct.indigo.futuregateway.server.FGServerConstants;
 import it.infn.ct.indigo.futuregateway.server.FGServerManeger;
 
 /**
@@ -69,12 +70,11 @@ public class FGAddAppMVCRenderCommand implements MVCRenderCommand {
                 return "/application-no-infras.jsp";
             }
             renderRequest.setAttribute(
-                    FutureGatewayAdminPortletKeys.
-                        FUTURE_GATEWAY_INFRASTRUCTURE_COLLECTION,
+                    FGServerConstants.INFRASTRUCTURE_COLLECTION,
                         infras
                     );
         } catch (Exception e) {
-            if (e instanceof PrincipalException) {
+            if (e instanceof IOException) {
                 SessionErrors.add(renderRequest, e.getClass());
                 return "/error.jsp";
             } else {

@@ -45,7 +45,7 @@ renderResponse.setTitle(LanguageUtil.get(request, "fg-add-infra"));
                     <aui:validator name="required" />
                 </aui:input>
                 <aui:input name="fg-infra-enabled" type="checkbox" checked="true"/>
-                <aui:input name="fg-infra-virtual" type="checkbox" checked="true"/>
+                <aui:input name="fg-infra-virtual" type="checkbox" checked="false"/>
                 <aui:input name="fg-infra-description" type="textarea">
                 </aui:input>
             </aui:fieldset>

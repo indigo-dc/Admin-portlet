@@ -30,13 +30,13 @@ portletDisplay.setShowBackIcon(true);
 portletDisplay.setURLBack(redirect);
 
 renderResponse.setTitle(LanguageUtil.get(request, "fg-add-app"));
-Map<String, String> infras = (Map<String, String>) request.getAttribute(FutureGatewayAdminPortletKeys.FUTURE_GATEWAY_INFRASTRUCTURE_COLLECTION);
+Map<String, String> infras = (Map<String, String>) request.getAttribute(FGServerConstants.INFRASTRUCTURE_COLLECTION);
 %>
 
 <portlet:actionURL name="/fg/addApp" var="addAppActionURL" />
 
 <liferay-ui:error exception="<%= IOException.class %>" message="fg-connection-error"/>
-<aui:form action="<%= addAppActionURL %>" cssClass="container-fluid-1280" method="post" name="fm">
+<aui:form action="<%= addAppActionURL %>" cssClass="container-fluid-1280" method="post" name="fm" enctype="multipart/form-data">
     <aui:input name="<%= Constants.CMD %>" type="hidden" value="<%= Constants.ADD %>" />
     <aui:input name="redirect" type="hidden" value="<%= redirect %>" />
     <aui:fieldset-group markupView="lexicon">
@@ -71,7 +71,11 @@ Map<String, String> infras = (Map<String, String>) request.getAttribute(FutureGa
                 </aui:select>
                 <aui:spacer/>
             </aui:fieldset>
-            <aui:fieldset cssClass="col-md-5" label="fg-app-parameters">
+            <aui:fieldset cssClass="col-md-6" label="fg-app-files">
+                <div id="<portlet:namespace />fileContainer"></div>
+                <aui:button name="add_file" value="+" onClick="<%= renderResponse.getNamespace() + "addFile()" %>" />
+            </aui:fieldset>
+            <aui:fieldset cssClass="col-md-6" label="fg-app-parameters">
                 <div id="<portlet:namespace />paramContainer"></div>
                 <aui:button name="add_parameter" value="+" onClick="<%= renderResponse.getNamespace() + "addParameter()" %>" />
             </aui:fieldset>
@@ -85,7 +89,7 @@ Map<String, String> infras = (Map<String, String>) request.getAttribute(FutureGa
         window,
         '<portlet:namespace />addParameter',
         function () {
-            var generatedId = (+new Date).toString(36).slice(-5);
+            var generatedId = 'Par_' + (+new Date).toString(36).slice(-5);
             var newParam = `<div id="<portlet:namespace/>generatedId" style="display: none;"><hr/>
                 <aui:input name="fg-app-parameter-name">
                 </aui:input>
@@ -93,7 +97,7 @@ Map<String, String> infras = (Map<String, String>) request.getAttribute(FutureGa
                 </aui:input>
                 <aui:input name="fg-app-parameter-description" type="textarea">
                 </aui:input>
-                <aui:button cssClass="btn-danger" name="add_parameter" value="-" onClick="<%= renderResponse.getNamespace() + "removeParameter('generatedId');" %>" />
+                <aui:button cssClass="btn-danger" name="remove_parameter" value="-" onClick="<%= renderResponse.getNamespace() + "removeElement('generatedId');" %>" />
                 <hr/></div>`;
             newParam = newParam.replace(/generatedId/gi, generatedId);
             jQuery('#<portlet:namespace />paramContainer').append(newParam);
@@ -104,7 +108,26 @@ Map<String, String> infras = (Map<String, String>) request.getAttribute(FutureGa
         
     Liferay.provide(
         window,
-        '<portlet:namespace />removeParameter',
+        '<portlet:namespace />addFile',
+        function () {
+            var generatedId = 'File' + (+new Date).toString(36).slice(-5);
+            var newFile = `<div id="<portlet:namespace/>generatedId" style="display: none;"><hr/>
+                <aui:input name="fg-app-file-update" type="file">
+                </aui:input>
+                <liferay-ui:message key="alternative-option"/>
+                <aui:input name="fg-app-file-url"/>
+                <aui:button cssClass="btn-danger" name="remove_file" value="-" onClick="<%= renderResponse.getNamespace() + "removeElement('generatedId');" %>" />
+                <hr/></div>`;
+            newFile = newFile.replace(/generatedId/gi, generatedId);
+            jQuery('#<portlet:namespace />fileContainer').append(newFile);
+            jQuery('#<portlet:namespace />'+generatedId).fadeIn(800);
+            
+        },
+        []);
+
+    Liferay.provide(
+        window,
+        '<portlet:namespace />removeElement',
         function (id) {
             jQuery('#<portlet:namespace />' + id).fadeOut(800, function(){
                 jQuery('#<portlet:namespace />' + id).remove();

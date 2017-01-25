@@ -18,6 +18,7 @@ class FgTable {
 
   render(resource, columns, detailsCallback, waitElement) {
     if (this.token == null) {
+      Dom.toggleClasses(waitElement, 'loaded');
       Dom.append(
           this.tableIdentifier,
           '<h1 class="">No Token available.</h1>'

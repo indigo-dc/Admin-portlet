@@ -28,6 +28,7 @@ import javax.portlet.ActionResponse;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.log.Log;
@@ -41,6 +42,7 @@ import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 
 import it.infn.ct.indigo.futuregateway.constants.FutureGatewayAdminPortletKeys;
+import it.infn.ct.indigo.futuregateway.server.FGServerConstants;
 import it.infn.ct.indigo.futuregateway.server.FGServerManeger;
 
 /**
@@ -80,17 +82,26 @@ public class FGAddInfraMVCActionCommand extends BaseMVCActionCommand {
         String[] paramDescriptions = ParamUtil.getStringValues(
                 actionRequest, "fg-infra-parameter-description");
 
-        JSONObject jsonApp = JSONFactoryUtil.createJSONObject();
-        jsonApp.put("name", name);
-        jsonApp.put("description", description);
-        jsonApp.put("enabled", enabled);
-        jsonApp.put("virtual", virtual);
+        JSONObject jInfra = JSONFactoryUtil.createJSONObject();
+        jInfra.put("name", name);
+        jInfra.put("description", description);
+        jInfra.put("enabled", enabled);
+        jInfra.put("virtual", virtual);
+        JSONArray jParams = JSONFactoryUtil.createJSONArray();
+        for (int i = 0; i < paramNames.length; i++) {
+            JSONObject jPar = JSONFactoryUtil.createJSONObject();
+            jPar.put("name", paramNames[i]);
+            jPar.put("value", paramValues[i]);
+            jPar.put("description", paramDescriptions[i]);
+            jParams.put(jPar);
+        }
+        jInfra.put("parameters", jParams);
+
         try {
             fgServerManager.addResource(
                     themeDisplay.getCompanyId(),
-                    FutureGatewayAdminPortletKeys.
-                        FUTURE_GATEWAY_INFRASTRUCTURE_COLLECTION,
-                    jsonApp.toJSONString(),
+                    FGServerConstants.INFRASTRUCTURE_COLLECTION,
+                    jInfra.toJSONString(),
                     themeDisplay.getUserId());
             sendRedirect(actionRequest, actionResponse, redirect);
         } catch (IOException io) {

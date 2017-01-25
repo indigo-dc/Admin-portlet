@@ -40,7 +40,7 @@
 <%@ page import="com.liferay.portal.kernel.util.Constants" %>
 <%@ page import="com.liferay.portal.kernel.util.HtmlUtil" %>
 <%@ page import="com.liferay.portal.util.PropsValues"%>
-<%@ page import="it.infn.ct.indigo.futuregateway.constants.FutureGatewayAdminPortletKeys"%>
+<%@ page import="it.infn.ct.indigo.futuregateway.server.FGServerConstants"%>
 <%@ page import="java.io.IOException"%>
 <%@ page import="java.util.Map"%>
 <liferay-theme:defineObjects />

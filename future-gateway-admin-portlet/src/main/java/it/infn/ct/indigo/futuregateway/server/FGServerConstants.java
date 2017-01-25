@@ -20,34 +20,46 @@
  **********************************************************************
  */
 
-package it.infn.ct.indigo.futuregateway.constants;
+package it.infn.ct.indigo.futuregateway.server;
 
 /**
- * Keys used in the module.
+ * Static elements defined in the FutureGateway.
  *
  */
-public final class FutureGatewayAdminPortletKeys {
-
+public final class FGServerConstants {
     /**
      * Blocks public instance of this class.
      */
-    private FutureGatewayAdminPortletKeys() {
+    private FGServerConstants() {
     }
 
     /**
-     * Identifier for the portlet.
+     * Name of the collection containing the applications.
      */
-    public static final String FUTURE_GATEWAY_ADMIN = "FutureGatewayAdmin";
+    public static final String INPUT_PATH = "input";
 
     /**
-     * Content type for FG server messages.
+     * Name of the collection containing the applications.
      */
-    public static final String FUTURE_GATEWAY_CONTENT_TYPE =
-            "application/vnd.indigo-datacloud.apiserver+json";
+    public static final String APPLICATION_COLLECTION = "applications";
 
     /**
-     * Weight assigned to the portlet in the configuration panel.
+     * Name of the collection containing the applications.
      */
-    public static final int FUTURE_GATEWAY_WIGHT = 101;
+    public static final String INFRASTRUCTURE_COLLECTION = "infrastructures";
 
+    /**
+     * Name of the attribute providing the id.
+     */
+    public static final String ATTRIBUTE_ID = "id";
+
+    /**
+     * Name of the attribute providing the name.
+     */
+    public static final String ATTRIBUTE_NAME = "name";
+
+    /**
+     * Name of the attribute providing if it is enabled.
+     */
+    public static final String ATTRIBUTE_ENABLED = "enabled";
 }
