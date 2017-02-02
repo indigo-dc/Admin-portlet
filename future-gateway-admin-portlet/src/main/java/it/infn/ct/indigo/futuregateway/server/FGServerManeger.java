@@ -57,6 +57,7 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.module.framework.ModuleServiceLifecycle;
 import com.liferay.portal.kernel.service.CompanyLocalService;
+import com.liferay.portal.kernel.servlet.HttpMethods;
 import com.liferay.portal.security.sso.iam.IAM;
 
 import it.infn.ct.indigo.futuregateway.constants.FutureGatewayAdminPortletKeys;
@@ -116,17 +117,10 @@ public class FGServerManeger {
             final String collection, final String resource,
             final String token)
                     throws PortalException, IOException {
-        log.debug("Adding the new resource: " + resource);
-        log.info("Adding new resource to " + collection);
-        URL url = new URL(getFGUrl(companyId) + "/" + collection);
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setDoOutput(true);
-        connection.setDoInput(true);
-        connection.setRequestMethod("POST");
-        connection.setRequestProperty("Content-Type",
+        log.debug("Adding the new " + collection + ": " + resource);
+        HttpURLConnection connection = getFGConnection(
+                companyId, collection, null, token, HttpMethods.POST,
                 FutureGatewayAdminPortletKeys.FUTURE_GATEWAY_CONTENT_TYPE);
-        connection.setRequestProperty("Authorization",
-                "Bearer " + token);
         OutputStream os = connection.getOutputStream();
         os.write(resource.getBytes());
         os.flush();
@@ -186,17 +180,10 @@ public class FGServerManeger {
         String crlf = "\r\n";
         log.info("Adding new files to " + collection + "/" + resourceId);
 
-        URL url = new URL(getFGUrl(companyId) + "/" + collection + "/"
-                + resourceId + FGServerConstants.INPUT_PATH);
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setDoOutput(true);
-        connection.setDoInput(true);
-        connection.setRequestMethod("POST");
-        connection.setRequestProperty("Content-Type",
+        HttpURLConnection connection = getFGConnection(
+                companyId, collection, resourceId + "/input", token,
+                HttpMethods.POST,
                 "multipart/form-data; boundary=" + boundary);
-        connection.setRequestProperty("Authorization",
-                "Bearer " + token);
-
         try (OutputStream output = connection.getOutputStream();
                 PrintWriter writer = new PrintWriter(
                         new OutputStreamWriter(
@@ -235,13 +222,14 @@ public class FGServerManeger {
      * @param resourceId The resource requiring the files
      * @param files The files to add to the resource
      * @param userId The id of the user performing the action
-     * @throws PortalException Cannot retrieve the server endpoint
-     * @throws IOException Connect communicate with the server
+     * @throws Exception Impossible to retrieve the user token
      */
     public final void submitFilesResource(final long companyId,
             final String collection, final String resourceId,
             final Map<String, File> files, final long userId)
-                    throws PortalException, IOException {
+                    throws Exception {
+        submitFilesResource(companyId, collection, resourceId,
+                files, iam.getUserToken(userId));
     }
 
     /**
@@ -257,15 +245,9 @@ public class FGServerManeger {
     public final String getCollection(final long companyId,
             final String collection, final String token)
                     throws PortalException, IOException {
-        URL url = new URL(getFGUrl(companyId) + "/" + collection);
-        log.debug("Get the collection from " + url.toString());
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setDoOutput(true);
-        connection.setRequestMethod("GET");
-        connection.setRequestProperty("Content-Type",
+        HttpURLConnection connection = getFGConnection(
+                companyId, collection, null, token, HttpMethods.GET,
                 FutureGatewayAdminPortletKeys.FUTURE_GATEWAY_CONTENT_TYPE);
-        connection.setRequestProperty("Authorization",
-                "Bearer " + token);
         if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
             connection.disconnect();
             log.debug("FG server response code not correct: "
@@ -432,6 +414,38 @@ public class FGServerManeger {
     @Reference(unbind = "-")
     protected final void setIam(final IAM iamComp) {
         this.iam = iamComp;
+    }
+
+    /**
+     * Retrive the connection to the server.
+     *
+     * @param companyId The companyId
+     * @param collection The collection
+     * @param resourceId The resource
+     * @param token The Token
+     * @param method The request method
+     * @param contentType The content type
+     * @return The active connection.
+     * @throws PortalException Cannot retrieve the information
+     * @throws IOException Cannot open the connection
+     */
+    private HttpURLConnection getFGConnection(final long companyId,
+            final String collection, final String resourceId,
+            final String token, final String method, final String contentType)
+                    throws PortalException, IOException {
+        String finalPath = collection;
+        if (resourceId != null) {
+            finalPath = finalPath + "/" + resourceId;
+        }
+        URL url = new URL(getFGUrl(companyId) + "/" + finalPath);
+        log.debug("Get the collection from " + url.toString());
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setDoOutput(true);
+        connection.setRequestMethod(method);
+        connection.setRequestProperty("Content-Type", contentType);
+        connection.setRequestProperty("Authorization",
+                "Bearer " + token);
+        return connection;
     }
 
     /**

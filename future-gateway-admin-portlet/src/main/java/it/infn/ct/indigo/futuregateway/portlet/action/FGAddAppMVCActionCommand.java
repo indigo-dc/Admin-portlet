@@ -121,18 +121,20 @@ public class FGAddAppMVCActionCommand extends BaseMVCActionCommand {
         }
         jApp.put("infrastructures", jInfras);
 
-        JSONArray jFiles = JSONFactoryUtil.createJSONArray();
-        for (int i = 0; i < fileNames.length; i++) {
-            if (Validator.isNotNull(fileNames[i])) {
-                jFiles.put(fileNames[i]);
-                fileToTransfer.put(fileNames[i], files[i]);
-            } else {
-                if (Validator.isNotNull(fileUrls[i])) {
-                    jFiles.put(fileUrls[i]);
+        if (Validator.isNotNull(fileNames)) {
+            JSONArray jFiles = JSONFactoryUtil.createJSONArray();
+            for (int i = 0; i < fileNames.length; i++) {
+                if (Validator.isNotNull(fileNames[i])) {
+                    jFiles.put(fileNames[i]);
+                    fileToTransfer.put(fileNames[i], files[i]);
+                } else {
+                    if (Validator.isNotNull(fileUrls[i])) {
+                        jFiles.put(fileUrls[i]);
+                    }
                 }
             }
+            jApp.put("files", jFiles);
         }
-        jApp.put("files", jFiles);
         try {
             String resourceId = fgServerManager.addResource(
                     themeDisplay.getCompanyId(),
@@ -185,7 +187,7 @@ public class FGAddAppMVCActionCommand extends BaseMVCActionCommand {
     /**
      * The logger.
      */
-    private Log log = LogFactoryUtil.getLog(FGAddAppMVCRenderCommand.class);
+    private Log log = LogFactoryUtil.getLog(FGAddAppMVCActionCommand.class);
 
     /**
      * The reference to the FG Server manager.
